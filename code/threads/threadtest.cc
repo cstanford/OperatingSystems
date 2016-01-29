@@ -1,25 +1,19 @@
-// threadtest.cc 
-//	Simple test case for the threads assignment.
-//
-//	Create two threads, and have them context switch
-//	back and forth between themselves by calling Thread::Yield, 
-//	to illustratethe inner workings of the thread system.
-//
-// Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
-// of liability and disclaimer of warranty provisions.
-
 #include "copyright.h"
 #include "system.h"
+#include "string.h"
+#include "shout.h"
+#include "inputidentification.h"
 
 //----------------------------------------------------------------------
 // SimpleThread
-// 	Loop 5 times, yielding the CPU to another ready thread 
-//	each iteration.
+//  Loop 5 times, yielding the CPU to another ready thread 
+//  each iteration.
 //
-//	"which" is simply a number identifying the thread, for debugging
-//	purposes.
+//  "which" is simply a number identifying the thread, for debugging
+//  purposes.
 //----------------------------------------------------------------------
+
+//TODO: check for proper input on task 2
 
 void
 SimpleThread(int which)
@@ -27,25 +21,50 @@ SimpleThread(int which)
     int num;
     
     for (num = 0; num < 5; num++) {
-	printf("*** thread %d looped %d times\n", which, num);
+    printf("*** thread %d looped %d times\n", which, num);
         currentThread->Yield();
     }
 }
 
-
 //----------------------------------------------------------------------
 // ThreadTest
-// 	Invoke a test routine.
+//  Invoke a test routine.
 //----------------------------------------------------------------------
+
+// edited by Connor Stanford and Joseph Fontenot
 
 void
 ThreadTest()
 {
     DEBUG('t', "Entering ThreadTest");
 
-    Thread *t = new Thread("forked thread");
+    /********** Previous Code ****************
 
-    t->Fork(SimpleThread, 1);
-    SimpleThread(0);
+      Thread *t = new Thread("forked thread");
+
+      t->Fork(SimpleThread, 1);
+      SimpleThread(0);
+      
+     *****************************************/
+
+
+     if (customParameterArg == 1)
+     {
+	 // This thread checks for valid input
+    Thread *checkInput = new Thread("InputIdentificationThread");
+    checkInput->Fork(InputIdentification, 0);
+     }
+    else if (customParameterArg == 2)
+    { 
+       // This thread calls the shoutItOut function
+      Thread *shout = new Thread("ShoutItOutThread");
+      shout->Fork(ShoutItOut, 0); // 0 is a fake parameter to satisfy the requirements to fork a thread.
+    }
+    else{
+    printf("\nIncorrect input. Please use \"-A 1\" or \"-A 2\"\n\n");
+    }   
+
+
 }
+
 
