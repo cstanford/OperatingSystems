@@ -1,3 +1,5 @@
+#ifndef INPUT_IDENT_H
+#define INPUT_IDENT_H
 #include "system.h"
 #include "string.h"
 
@@ -123,3 +125,5 @@ void InputIdentification(int dummyParameter){
     printf("String: %d\n", isCharStr);
   *************************************/
 }
+
+#endif

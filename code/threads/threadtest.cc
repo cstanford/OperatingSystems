@@ -47,21 +47,20 @@ ThreadTest()
       
      *****************************************/
 
+    // This thread checks for valid input
+    if (customParameterArg == 1){
+        Thread *checkInput = new Thread("InputIdentificationThread");
+        checkInput->Fork(InputIdentification, 0);
+    }
 
-     if (customParameterArg == 1)
-     {
-	 // This thread checks for valid input
-    Thread *checkInput = new Thread("InputIdentificationThread");
-    checkInput->Fork(InputIdentification, 0);
-     }
-    else if (customParameterArg == 2)
-    { 
-       // This thread calls the shoutItOut function
-      Thread *shout = new Thread("ShoutItOutThread");
-      shout->Fork(ShoutItOut, 0); // 0 is a fake parameter to satisfy the requirements to fork a thread.
+    // This thread calls the shoutItOut function
+    // 0 is a fake parameter to satisfy the requirements to fork a thread.
+    else if (customParameterArg == 2){
+        Thread *shout = new Thread("ShoutItOutThread");
+        shout->Fork(ShoutItOut, 0); 
     }
     else{
-    printf("\nIncorrect input. Please use \"-A 1\" or \"-A 2\"\n\n");
+        printf("\nIncorrect input. Please use \"-A 1\" or \"-A 2\"\n\n");
     }   
 
 

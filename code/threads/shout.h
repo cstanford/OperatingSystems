@@ -1,4 +1,5 @@
 #include "system.h"
+#include "inputidentification.h"
 
 // Edited by Connor Stanford and Joseph Fontenot 
 
@@ -59,22 +60,32 @@ void ExecuteShouts(int threadNumber) // Prints random "Shouts" to console.
      }
 }
 
-
-// TODO: validate that the user enters valid inpuut 
-
 void ShoutItOut(int fakeParameter) // fakeParameter is only a placeholder to satisfy the required parameters when forking a thread 
 {
 
     int numOfThreads = 0; // Number of threads the user selects to run; 
     char userInput[256];
+    input_type type;
 
-    printf("\nEnter the number of threads: ");
-    scanf("%s", userInput);
-    numOfThreads = atoi(userInput);
+    do{
+        printf("\nEnter the number of threads: ");
+        scanf("%s", userInput);
+        type = CheckType(userInput);
+        numOfThreads = atoi(userInput);
+        if(type != INTEGER) {
+            printf("\nSorry, only positive integer values are allowed.");
+        }
+    }while(type != INTEGER);
 
-    printf("\nEnter the number of shouts: ");
-    scanf("%s", userInput);
-    numOfShouts = atoi(userInput);
+    do{
+        printf("\nEnter the number of shouts: ");
+        scanf("%s", userInput);
+        type = CheckType(userInput);
+        numOfShouts = atoi(userInput);
+        if(type != INTEGER) {
+            printf("\nSorry, only positive integer values are allowed.");
+        }
+    }while(type != INTEGER);
 
     printf("\n");
 
