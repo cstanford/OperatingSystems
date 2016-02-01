@@ -12,6 +12,7 @@ enum input_type {
     CHAR_STRING
 };
 
+void getInput(char* store, int maxBuff);
 bool isInteger(char* input);
 bool isNegativeInteger(char* input);
 bool isDecimal(char* input);
@@ -21,6 +22,15 @@ void InputIdentification(int dummyParameter);
 input_type CheckType(char *input);
 
 //Code edited by Joseph Fontenot and Connor Stanford
+void getInput(char* store, int maxBuff){
+    fgets(store, maxBuff, stdin);
+    //fgets considers \n an endline but also stores is
+    //So simply strip it off to get the string and keep
+    //the null terminator
+    if(*(store+strlen(store) -1) == '\n')
+        *(store+strlen(store) - 1) = '\0';
+}
+
 bool isInteger(char* input){
     if(*input == '\0') return false;
     for(; *input != '\0'; input++){
@@ -113,7 +123,7 @@ void InputIdentification(int dummyParameter){
     char input[256];
 
     printf("Please enter a value less than 256 characters: ");
-    gets(input);
+    getInput(input, 256);
 
     PrintType(CheckType(input));
 

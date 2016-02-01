@@ -69,21 +69,21 @@ void ShoutItOut(int fakeParameter) // fakeParameter is only a placeholder to sat
 
     do{
         printf("\nEnter the number of threads: ");
-        scanf("%s", userInput);
+        getInput(userInput, 255);
         type = CheckType(userInput);
         numOfThreads = atoi(userInput);
         if(type != INTEGER) {
-            printf("\nSorry, only positive integer values are allowed.");
+            printf("Sorry, only positive integer values are allowed.");
         }
     }while(type != INTEGER);
 
     do{
         printf("\nEnter the number of shouts: ");
-        scanf("%s", userInput);
+        getInput(userInput, 255);
         type = CheckType(userInput);
         numOfShouts = atoi(userInput);
         if(type != INTEGER) {
-            printf("\nSorry, only positive integer values are allowed.");
+            printf("Sorry, only positive integer values are allowed.");
         }
     }while(type != INTEGER);
 
