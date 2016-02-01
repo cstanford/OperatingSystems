@@ -113,7 +113,7 @@ void InputIdentification(int dummyParameter){
     char input[256];
 
     printf("Please enter a value less than 256 characters: ");
-    scanf("%s", input);
+    gets(input);
 
     PrintType(CheckType(input));
 
