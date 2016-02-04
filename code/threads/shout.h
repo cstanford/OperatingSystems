@@ -1,3 +1,5 @@
+#ifndef SHOUT_H
+#define SHOUT_H
 #include "system.h"
 #include "inputidentification.h"
 
@@ -101,3 +103,4 @@ void ShoutItOut(int fakeParameter) // fakeParameter is only a placeholder to sat
 
 }
 
+#endif
