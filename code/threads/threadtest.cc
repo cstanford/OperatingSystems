@@ -1,8 +1,9 @@
-#include "copyright.h"
 #include "system.h"
 #include "string.h"
 #include "shout.h"
 #include "inputidentification.h"
+#include "diningphilosophers.h"
+
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -13,13 +14,12 @@
 //  purposes.
 //----------------------------------------------------------------------
 
-//TODO: check for proper input on task 2
 
 void
 SimpleThread(int which)
 {
     int num;
-    
+
     for (num = 0; num < 5; num++) {
     printf("*** thread %d looped %d times\n", which, num);
         currentThread->Yield();
@@ -57,13 +57,14 @@ ThreadTest()
     // 0 is a fake parameter to satisfy the requirements to fork a thread.
     else if (customParameterArg == 2){
         Thread *shout = new Thread("ShoutItOutThread");
-        shout->Fork(ShoutItOut, 0); 
+        shout->Fork(ShoutItOut, 0);
     }
     else{
-        printf("\nIncorrect input. Please use \"-A 1\" or \"-A 2\"\n\n");
-    }   
 
 
+        Thread *dine = new Thread("DiningPhilosophersThread");
+        dine->Fork(DiningPhilosophers, 0);
+
+        }
 }
-
 
