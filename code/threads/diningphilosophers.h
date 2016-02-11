@@ -5,18 +5,29 @@
 #include "inputidentification.h"
 #include "philosopher.h"
 
-int numOfPhilosophers = 0;
-int numOfMeals = 0;
+int numOfPhilosophers = 0;  // Number of philosophers entered by the user.
+int numOfMeals = 0;	    // Number of meals entered by the user.
+
 int philosopherIdNumber = 0;
-bool *chopsticks;
-Philosopher *philosopherList;
+  // Will be incremented for each philosopher, and used for method 
+  // setId(int philosopherIdNumber) in the philosopher class.
+	    
+
+bool *chopsticks; 
+ // Will be pointed to an array  used to determine which chopsticks are 
+ // available. True indicates that the chopstick is available. False otherwise.
 
 
+Philosopher *philosopherArrayPointer;
+ // Will point to an array of philosophers.
 
-void BeginDining(int philosopheridNumber)
+
+ // dummyParameters is only a placeholder to satisy the required parameters 
+ // when forking a thread.
+void BeginDining(int dummyParameter) 
 {
     Philosopher phil(numOfPhilosophers, numOfMeals, chopsticks);
-    philosopherList[philosopherIdNumber] = phil;
+    philosopherArrayPointer[philosopherIdNumber] = phil;
     phil.setId(philosopherIdNumber);
     philosopherIdNumber++;
     phil.join();
@@ -25,7 +36,9 @@ void BeginDining(int philosopheridNumber)
     {
         phil.wait(); // Causes thread to yield between 2 and 5 cycles.
 
-        if(philosopherIdNumber == numOfPhilosophers) {  // once all philosophers have entered the room, each philosopher will set down.
+        if(philosopherIdNumber == numOfPhilosophers) { 
+     //  once all philosophers have entered the room, each philosopher
+     //  will sit down.
             phil.sit();
             break;
         }
@@ -36,7 +49,7 @@ void BeginDining(int philosopheridNumber)
     // Ensures that all philosophers have sat before continuting. 
     for (int i = 0; i < numOfPhilosophers; i++)
     {
-        if(philosopherList[0].hasSat() == false)
+        if(philosopherArrayPointer[0].hasSat() == false)
             phil.wait();
 
     }
@@ -46,7 +59,9 @@ void BeginDining(int philosopheridNumber)
 }
 
 
-void DiningPhilosophers(int dummyParameter) // dummyParameters is only a placeholder to satisy the required parameters when forking a thread.
+void DiningPhilosophers(int dummyParameter)
+ // dummyParameters is only a placeholder to satisy the required parameters 
+ // when forking a thread.
 {
 
     char userInput[256];
@@ -72,7 +87,10 @@ do{ // gets the number of meals from the user.
         }
    }while(type != INTEGER);
 
-    bool chopstickArray[numOfPhilosophers]; // This array will be used to determine which chopsticks are available.
+    bool chopstickArray[numOfPhilosophers];
+     // This array will be used to determine which chopsticks are available.
+     // True indicates that the chopstick is available. False otherwise.
+
 
     // simply doing:  bool chopstickArray[numOfPhilosophers] = {true};
     // does not work becuase the array size is a variable.
@@ -82,14 +100,19 @@ do{ // gets the number of meals from the user.
     }
 
     chopsticks =  chopstickArray;
-     // global pointer chopsticks points the the array so we can look inside the array in other functions.
+     // global pointer chopsticks points the the array so we can
+     // look inside the array in other functions.
 
 
-    Philosopher philosopherArray[numOfPhilosophers]; // An array that will hold every philosopher.
-    philosopherList = philosopherArray;
-    // global pointer chopsticks points to the array so we can access methods to all philosophers in other functions. 
+    Philosopher philosopherArray[numOfPhilosophers];
+     // An array that will hold every philosopher.
+
+    philosopherArrayPointer = philosopherArray;
+    // global philosopherArrayPointer  points to the array so we 
+    // can access methods to all philosophers in other functions. 
 
 
+    // Forks a thread for each philosopher.
     for( int i = 0; i < numOfPhilosophers; i++)
     {
         Thread *t = new Thread("Philosopher");
