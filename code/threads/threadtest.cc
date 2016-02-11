@@ -59,12 +59,9 @@ ThreadTest()
         Thread *shout = new Thread("ShoutItOutThread");
         shout->Fork(ShoutItOut, 0);
     }
-    else{
-
-
+    else if (customParameterArg == 3){
         Thread *dine = new Thread("DiningPhilosophersThread");
         dine->Fork(DiningPhilosophers, 0);
-
-        }
+    }
 }
 

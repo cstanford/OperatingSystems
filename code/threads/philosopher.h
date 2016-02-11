@@ -1,5 +1,5 @@
 #ifndef PHIL_H
-#define PHIL-H
+#define PHIL_H
 
 #include "system.h"
 
@@ -7,7 +7,7 @@ class Philosopher {
 
     public:
     Philosopher();
-    Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[]);
+    Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[], bool useSemaphores);
     ~Philosopher();
 
     int getId();
@@ -24,9 +24,11 @@ class Philosopher {
     void putDownRightChopstick();
     void beginEating();
     void wait();    // Yields bewteen 2 and 5 cycles.
+    void budyWait();    // Yields bewteen 2 and 5 cycles.
     void think();   // Same as wait but prints output.
 
     private:
+    bool useSemaphores;
     bool isSitting;
     int id;
     bool *chopsticks;
@@ -44,9 +46,10 @@ Philosopher::Philosopher() {
 
 }
 
-Philosopher::Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[]) {
+Philosopher::Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[], bool useSemaphores) {
     id = 0;
     isSitting = false;
+    useSemaphores = useSemaphores;
     numberOfPhilosophers = numOfPhilosophers;
     numberOfMeals = &numOfMeals;
     chopsticks = chopsticksArray;
@@ -160,7 +163,7 @@ void Philosopher::beginEating()
     {
         printf("Philosopher %d has begun eating. \n", id);
         *numberOfMeals = *numberOfMeals - 1;
-        wait();
+        busyWait();
         putDownLeftChopstick();
         putDownRightChopstick();
         think();
@@ -173,14 +176,26 @@ void Philosopher::beginEating()
 
 }
 
-
-void Philosopher::wait() {
-
-    int randInt = Random() % 6 + 2; // random number between 2 and 5.
+void Philosopher::busyWait() {
+    //Sometimes it is useful to simply yield, otherwise determine which to do based on task number
+    //Used for thinking and eating
+    int randInt = Random() % 4 + 2; // random number between 2 and 5.
 
     for(int i = 0; i < randInt; i++)
     {
         currentThread->Yield();
+    }
+}
+
+void Philosopher::wait() {
+
+    if(!useSemaphores){
+        int randInt = Random() % 4 + 2; // random number between 2 and 5.
+
+        for(int i = 0; i < randInt; i++)
+        {
+            currentThread->Yield();
+        }
     }
 
 }
@@ -188,7 +203,7 @@ void Philosopher::wait() {
 void Philosopher::think() {
 
     printf("Philosopher %d is thinkking... \n", id);
-    wait();
+    busyWait();
 
 }
 

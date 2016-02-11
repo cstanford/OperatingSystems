@@ -37,8 +37,8 @@ void BeginDining(int dummyParameter)
         phil.wait(); // Causes thread to yield between 2 and 5 cycles.
 
         if(philosopherIdNumber == numOfPhilosophers) { 
-     //  once all philosophers have entered the room, each philosopher
-     //  will sit down.
+            //  once all philosophers have entered the room, each philosopher
+            //  will sit down.
             phil.sit();
             break;
         }
@@ -73,17 +73,17 @@ void DiningPhilosophers(int dummyParameter)
         type = CheckType(userInput);
         numOfPhilosophers = atoi(userInput);
         if(type != INTEGER){
-        printf("Sorry, only positive integer values are allowed.");
+            printf("Sorry, only positive integer values are allowed.");
         }
      }while(type != INTEGER);
 
-do{ // gets the number of meals from the user.      
+    do{ // gets the number of meals from the user.      
         printf("\nEnter the number of meals: ");
         getInput(userInput, 255);
         type = CheckType(userInput);
         numOfMeals = atoi(userInput);
         if(type != INTEGER){
-        printf("Sorry, only positive integer values are allowed.");
+            printf("Sorry, only positive integer values are allowed.");
         }
    }while(type != INTEGER);
 
