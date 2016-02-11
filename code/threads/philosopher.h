@@ -7,7 +7,7 @@ class Philosopher {
 
     public:
     Philosopher();
-    Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[], bool useSemaphores);
+    Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[], bool ifUsingSemaphores);
     ~Philosopher();
 
     int getId();
@@ -24,7 +24,7 @@ class Philosopher {
     void putDownRightChopstick();
     void beginEating();
     void wait();    // Yields bewteen 2 and 5 cycles.
-    void budyWait();    // Yields bewteen 2 and 5 cycles.
+    void busyWait();    // Yields bewteen 2 and 5 cycles.
     void think();   // Same as wait but prints output.
 
     private:
@@ -46,10 +46,11 @@ Philosopher::Philosopher() {
 
 }
 
-Philosopher::Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[], bool useSemaphores) {
+Philosopher::Philosopher(int numOfPhilosophers, int &numOfMeals,
+		         bool chopsticksArray[], bool ifUsingSemaphores) {
     id = 0;
     isSitting = false;
-    useSemaphores = useSemaphores;
+    useSemaphores = ifUsingSemaphores;
     numberOfPhilosophers = numOfPhilosophers;
     numberOfMeals = &numOfMeals;
     chopsticks = chopsticksArray;

@@ -22,11 +22,13 @@ Philosopher *philosopherArrayPointer;
  // Will point to an array of philosophers.
 
 
+bool useSemaphores;
+
  // dummyParameters is only a placeholder to satisy the required parameters 
  // when forking a thread.
 void BeginDining(int dummyParameter) 
 {
-    Philosopher phil(numOfPhilosophers, numOfMeals, chopsticks);
+    Philosopher phil(numOfPhilosophers, numOfMeals, chopsticks, useSemaphores);
     philosopherArrayPointer[philosopherIdNumber] = phil;
     phil.setId(philosopherIdNumber);
     philosopherIdNumber++;
@@ -59,11 +61,11 @@ void BeginDining(int dummyParameter)
 }
 
 
-void DiningPhilosophers(int dummyParameter)
+void DiningPhilosophers(int ifUsingSemaphores)
  // dummyParameters is only a placeholder to satisy the required parameters 
  // when forking a thread.
 {
-
+    useSemaphores = ifUsingSemaphores;
     char userInput[256];
     input_type type;
 
@@ -116,7 +118,7 @@ void DiningPhilosophers(int dummyParameter)
     for( int i = 0; i < numOfPhilosophers; i++)
     {
         Thread *t = new Thread("Philosopher");
-        t->Fork(BeginDining, philosopherIdNumber);
+        t->Fork(BeginDining, 0);
         currentThread->Yield();
     }
 
