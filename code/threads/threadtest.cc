@@ -66,5 +66,5 @@ ThreadTest()
     else{
 	printf("Sorry, please use the paramters \"-A \" followed by an integer value 1 - 6.\n\n");
    } 
-} 
+}
 

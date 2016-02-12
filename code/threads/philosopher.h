@@ -3,6 +3,17 @@
 
 #include "system.h"
 
+/*TODO:
+ *	Display the number of meals that have been eaten. 
+ * 
+ *	When all meals are gone, all chopsticks should be put
+ *	down and the philosophers should exit the room together.
+ *
+ *
+ *
+ *
+ */
+
 class Philosopher {
 
     public:
@@ -38,8 +49,9 @@ class Philosopher {
     int *numberOfMeals; 
      // points to the number of meals created in diningphilosophers.h
      // Note that numOfMeals is passed by reference. 
-
-
+    
+    bool hasBothChopsticks;
+     // inidcates if the philosopher holds both chopsticks.
 };
 
 Philosopher::Philosopher() {
@@ -54,6 +66,7 @@ Philosopher::Philosopher(int numOfPhilosophers, int &numOfMeals,
     numberOfPhilosophers = numOfPhilosophers;
     numberOfMeals = &numOfMeals;
     chopsticks = chopsticksArray;
+    hasBothChopsticks = false;
 }
 
 Philosopher::~Philosopher() {
@@ -122,21 +135,39 @@ void Philosopher::pickUpRightChopstick() {
 
     // If the chopstick is available pick it up and mark as
     // unavailable. 
-    if (chopsticks[ rightChopstickIndex ] == true){
+    if (chopsticks[ rightChopstickIndex ] == true) 
+    {
         chopsticks[ rightChopstickIndex ] = false;
+	hasBothChopsticks = true;
+	  // if the philospher has picked up the right chopstick, he is already holding the left. 
+
+
         printf("Philosopher %d has picked up chopstick %d. \n", id, rightChopstickIndex);
+	return;
     }
-    else {
-        while(chopsticks[ rightChopstickIndex ] == false && *numberOfMeals > 0){
-            wait();
+    else
+     {
+	int waitCount = 0;	
+        while(chopsticks[ rightChopstickIndex ] == false && *numberOfMeals > 0 ) 
+	{
+	     waitCount++;
+	     wait();
+	    if(waitCount >= 5)
+	    {
+		printf("Philosopher %d has aborted picking up chopstick %d to prevent deadlock after 5 cycles!\n", id, rightChopstickIndex);
+		putDownLeftChopstick();
+		return;
+	    }
         }
 
 	// If number of meals are < 0 do not pick up chopstick.
-        if (*numberOfMeals <= 0){
+        if (*numberOfMeals <= 0)
+	{
             return;
         }
 
         chopsticks[ rightChopstickIndex ] == false;
+	hasBothChopsticks = true;
         printf("Philosopher %d has picked up chopstick %d. \n", id, rightChopstickIndex);
     }
 }
@@ -144,6 +175,7 @@ void Philosopher::pickUpRightChopstick() {
 void Philosopher::putDownLeftChopstick() {
 
     chopsticks[id] = true;
+    hasBothChopsticks = false;
     printf("Philosopher %d has put down chopstick %d. \n", id, id);
 
 }
@@ -159,6 +191,12 @@ void Philosopher::beginEating()
 {
     pickUpLeftChopstick();
     pickUpRightChopstick();
+    
+    if(!hasBothChopsticks)
+    { // If the philospher was not able to pick up both chopsticks 
+      // he should not continue eating. 
+	return;
+    }
 
     if(*numberOfMeals > 0)
     {
@@ -203,7 +241,7 @@ void Philosopher::wait() {
 
 void Philosopher::think() {
 
-    printf("Philosopher %d is thinkking... \n", id);
+    printf("Philosopher %d is thinking... \n", id);
     busyWait();
 
 }

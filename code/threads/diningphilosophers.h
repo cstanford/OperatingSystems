@@ -51,7 +51,7 @@ void BeginDining(int dummyParameter)
     // Ensures that all philosophers have sat before continuting. 
     for (int i = 0; i < numOfPhilosophers; i++)
     {
-        if(philosopherArrayPointer[0].hasSat() == false)
+        if(philosopherArrayPointer[i].hasSat() == false)
             phil.wait();
 
     }
