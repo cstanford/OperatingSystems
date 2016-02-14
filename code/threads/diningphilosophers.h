@@ -24,6 +24,10 @@ Philosopher *philosopherArrayPointer;
 
 bool useSemaphores;
 
+bool philosophersHaveLeft = false;
+ // Used to prevent each thread from printing the statement:
+ //  "All philosophers leave the table together."
+
  // dummyParameters is only a placeholder to satisy the required parameters 
  // when forking a thread.
 void BeginDining(int dummyParameter) 
@@ -55,8 +59,29 @@ void BeginDining(int dummyParameter)
             phil.wait();
 
     }
+    
+    do // Continue eating until all meals are gone.
+    {
+	phil.beginEating();
+	currentThread->Yield();
+    }while(numOfMeals > 0);
 
-    phil.beginEating();
+
+    // Ensures that the philosophers stay seated until all are finished eating.     
+    for(int i = 0; i < numOfPhilosophers; i++)
+    {
+	if(philosopherArrayPointer[i].isReadyToLeave() == false)
+	    phil.wait();
+    }
+
+    // Once the first thread prints the statement, no others will be able to. 
+    while(philosophersHaveLeft == false)
+    {	
+	philosophersHaveLeft = true;
+	printf("All philosophers leave the table together.\n\n");
+	
+    }
+    
 
 }
 
@@ -121,6 +146,7 @@ void DiningPhilosophers(int ifUsingSemaphores)
         t->Fork(BeginDining, 0);
         currentThread->Yield();
     }
+
 
 }
 

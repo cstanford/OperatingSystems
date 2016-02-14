@@ -62,9 +62,10 @@ ThreadTest()
     else if (customParameterArg == 3){
         Thread *dine = new Thread("DiningPhilosophersThread");
         dine->Fork(DiningPhilosophers, 0);
+	// NOTE: when using semaphores, pass a value of 1 to DiningPhilosophers!
     }
     else{
 	printf("Sorry, please use the paramters \"-A \" followed by an integer value 1 - 6.\n\n");
    } 
-}
 
+} 

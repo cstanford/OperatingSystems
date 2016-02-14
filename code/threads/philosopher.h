@@ -3,16 +3,6 @@
 
 #include "system.h"
 
-/*TODO:
- *	Display the number of meals that have been eaten. 
- * 
- *	When all meals are gone, all chopsticks should be put
- *	down and the philosophers should exit the room together.
- *
- *
- *
- *
- */
 
 class Philosopher {
 
@@ -38,6 +28,8 @@ class Philosopher {
     void busyWait();    // Yields bewteen 2 and 5 cycles.
     void think();   // Same as wait but prints output.
 
+    bool isReadyToLeave(); // Returns the value of ready to leave.
+
     private:
     bool useSemaphores;
     bool isSitting;
@@ -52,6 +44,10 @@ class Philosopher {
     
     bool hasBothChopsticks;
      // inidcates if the philosopher holds both chopsticks.
+
+    bool readyToLeave;
+     // True if the philosopher is waiting to leave the table.
+
 };
 
 Philosopher::Philosopher() {
@@ -67,6 +63,7 @@ Philosopher::Philosopher(int numOfPhilosophers, int &numOfMeals,
     numberOfMeals = &numOfMeals;
     chopsticks = chopsticksArray;
     hasBothChopsticks = false;
+    readyToLeave = false;
 }
 
 Philosopher::~Philosopher() {
@@ -103,6 +100,7 @@ void Philosopher::sit() {
 
 void Philosopher::pickUpLeftChopstick() {
 
+
     printf("Philosopher %d is trying to pick up chopstick %d. \n", id, id);
     
     // If the chopstick is available pick it up and mark as
@@ -112,7 +110,8 @@ void Philosopher::pickUpLeftChopstick() {
         printf("Philosopher %d has picked up chopstick %d. \n", id, id);
     }
     else { //wait for chopstick to become available.
-        while(chopsticks[id] == false && *numberOfMeals > 0){
+	 while(chopsticks[id] == false && *numberOfMeals > 0)
+	{
             wait();
         }
 	// If number of meals are < 0 do not pick up chopstick.
@@ -163,6 +162,7 @@ void Philosopher::pickUpRightChopstick() {
 	// If number of meals are < 0 do not pick up chopstick.
         if (*numberOfMeals <= 0)
 	{
+	    putDownLeftChopstick();
             return;
         }
 
@@ -194,24 +194,36 @@ void Philosopher::beginEating()
     
     if(!hasBothChopsticks)
     { // If the philospher was not able to pick up both chopsticks 
-      // he should not continue eating. 
+      // he should not continue eating.
+	if( *numberOfMeals <= 0)
+	{
+	    readyToLeave = true;
+	    printf("Philosopher %d is waiting to leave...\n", id);
+	}
 	return;
     }
-
+    
     if(*numberOfMeals > 0)
     {
-        printf("Philosopher %d has begun eating. \n", id);
-        *numberOfMeals = *numberOfMeals - 1;
+        *numberOfMeals = *numberOfMeals - 1; 
+        printf("Philosopher %d has begun eating. %d meals remaining... \n", id, *numberOfMeals);
         busyWait();
         putDownLeftChopstick();
         putDownRightChopstick();
         think();
+	
+	if( *numberOfMeals <= 0)
+	{
+	    readyToLeave = true;
+	    printf("Philosopher %d is waiting to leave...\n", id);
+	}
     }
-
-    if(*numberOfMeals > 0)
-        beginEating();
-    else
-        return;
+   else
+   {
+	readyToLeave = true;
+	printf("Philosopher %d is waiting to leave...\n", id);
+   }
+    
 
 }
 
@@ -245,6 +257,12 @@ void Philosopher::think() {
     busyWait();
 
 }
+
+bool Philosopher::isReadyToLeave() {
+
+    return readyToLeave;
+}
+
 
 
 #endif
