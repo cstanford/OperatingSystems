@@ -3,6 +3,7 @@
 #include "shout.h"
 #include "inputidentification.h"
 #include "diningphilosophers.h"
+#include "postoffice.h"
 
 
 //----------------------------------------------------------------------
@@ -47,6 +48,7 @@ ThreadTest()
       
      *****************************************/
 
+    // Stage 1
     // This thread checks for valid input
     if (customParameterArg == 1){
         Thread *checkInput = new Thread("InputIdentificationThread");
@@ -59,9 +61,32 @@ ThreadTest()
         Thread *shout = new Thread("ShoutItOutThread");
         shout->Fork(ShoutItOut, 0);
     }
+
+    // Stage 2
+    // This thread forks to a dining philosophers simulation that uses busy loops
     else if (customParameterArg == 3){
         Thread *dine = new Thread("DiningPhilosophersThread");
         dine->Fork(DiningPhilosophers, 0);
+	// NOTE: when using semaphores, pass a value of 1 to DiningPhilosophers!
+    }
+
+    // This thread forks to a dining philosophers simulation that uses semaphores
+    else if (customParameterArg == 4){
+        Thread *dine = new Thread("DiningPhilosophersSemaphoreThread");
+        //dine->Fork(DiningPhilosophers, 1);
+	// NOTE: when using semaphores, pass a value of 1 to DiningPhilosophers!
+    }
+
+    // This thread forks to a post office simulation that uses busy loops
+    else if (customParameterArg == 5){
+        //Thread *postoffice = new Thread("PosOffBusyThread");
+        //dine->Fork(PostOffice, 0);
+    }
+
+    // This thread forks to a dining philosophers simulation that uses semaphores
+    else if (customParameterArg == 6){
+        //Thread *postoffice = new Thread("DiningPhilosophersThread");
+        //dine->Fork(DiningPhilosophers, 0);
 	// NOTE: when using semaphores, pass a value of 1 to DiningPhilosophers!
     }
     else{
