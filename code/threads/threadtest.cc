@@ -79,8 +79,8 @@ ThreadTest()
 
     // This thread forks to a post office simulation that uses busy loops
     else if (customParameterArg == 5){
-        //Thread *postoffice = new Thread("PosOffBusyThread");
-        //dine->Fork(PostOffice, 0);
+        Thread *postoffice = new Thread("PosOffBusyThread");
+        dine->Fork(PostOffice, 0);
     }
 
     // This thread forks to a dining philosophers simulation that uses semaphores
