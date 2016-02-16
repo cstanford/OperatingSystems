@@ -18,7 +18,9 @@ int *mailboxcapacity;
  // Size should be 0 < size < s, where s is max # of messages in a person's inbox
 
 void EnterPostOffice(int personID) {
-    Person pers(personID, s, m, &mailbox[0][0], mailboxcapacity, p);
+    Person pers(personID, s, m, mailbox, mailboxcapacity, p);
+
+    pers.EnterPostOffice();
 }
 
 void PostOfficeBusy(int fakeParameter) {
@@ -59,16 +61,16 @@ void PostOfficeBusy(int fakeParameter) {
     // Input ends
 
 
-    int mailboxArray[p][s];
+    int mailboxArray[p * s];
     int mailboxcapacityArray[p];
     for (int i = 0; i < p; i++)	{	
 	mailboxcapacityArray[i] = 0;		// loop that initializes mailboxCapacity to 0, meaning it's considered empty
 	for (int j = 0; j < s; j++)
-	    mailboxArray[i][j] = 0;	// nested loop that initializes mailbox values to 0, which is considered empty.
+	    mailboxArray[i * p + j] = 0;	// nested loop that initializes mailbox values to 0, which is considered empty.
     }
+
     mailbox = mailboxArray;
     mailboxcapacity = mailboxcapacityArray;
-
 
     // forks p threads to enter the post office
     for( int i = 0; i < p; i++)
