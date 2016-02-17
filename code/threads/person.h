@@ -15,7 +15,6 @@ class Person {
 	void CheckMail();
 	void SendMail();
 	void LeaveMessage(int recipient);
-	bool CheckCapacity(int recipient);
 	void LeavePostOffice();
 	void Wait();
 
@@ -50,35 +49,31 @@ Person::~Person() {
 // Person enters post office and calls CheckMail function
 void Person::EnterPostOffice() {
     printf("Person %d has entered the Post Office.\n", id);
-    CheckMail();
+    //CheckMail();
 }
 
 // Person checks mailbox. If they have no messages, they send mail. If they do, they first read their mail then send mail.
 void Person::CheckMail() {
-	printf("There are %d messages left to send.\n", *remainingMessages);
     printf("Person %d checks their mailbox. They have %d messages.\n", id, currentsize[id]);
-    if (currentsize[id] == 0)
+    if (currentsize[id] == 0) {
 	printf("  Person %d's mailbox is empty.\n", id);
+}
     else {
 	for (int i = 0; i < maxsize; i++) {
 	    if (mailbox[id * maxpeople + i] != 0) {
 		printf("  Person %d reads [message %d]\n", id, mailbox[id * maxpeople + i]);
 		mailbox[id * maxpeople + i] = 0;
 	        currentsize[id] = currentsize[id] - 1;
-	        currentThread->Yield();
+	        //currentThread->Yield();
 	    }
 	}
     } 
-
-//note to self: need to change this.
-// when they read first message, yield, someone sends them a message in first spot, 
-//	and when they continue reading mail, they never know/realize that there's mail in the first spot
-    SendMail();
+    //SendMail();
 
 }
 
 // Person sends mail to someone if there are remaining messages left to send & leaves post office. If recipient's mailbox is full, they'll wait to send mail.
-void Person::SendMail() {
+/*void Person::SendMail() {
     int randPerson = Random() % maxpeople;
     if (randPerson == id)	// if randomize yourself, calls SendMail again to randomize a new 
 	SendMail();
@@ -95,18 +90,18 @@ void Person::SendMail() {
 		    if (currentsize[randPerson] < maxsize)
 			LeaveMessage(randPerson);
 	    	    else currentThread->Yield();
-		}
 		CheckMail();
+		}
 	    }
 	}
     }
-}
+}*/
 
 // Person leaves random mail for recipient. Decrements remainingMessages to send.
 void Person::LeaveMessage(int recipient) {
     int randMessage = Random() % 5 + 1;
     currentsize[recipient] = currentsize[recipient] + 1;
-    remainingMessages = remainingMessages - 1;
+    //remainingMessages = remainingMessages - 1;
     for (int i = 0; i < maxsize; i++)
 	if (mailbox[recipient * maxpeople + i] == 0) {
 		mailbox[recipient * maxpeople + i] = randMessage;
@@ -115,25 +110,20 @@ void Person::LeaveMessage(int recipient) {
     printf("  Person %d left [ message %d ] for Person %d.\n", id, randMessage, recipient);    
 }
 
-// 
-bool Person::CheckCapacity(int recipient) {
-    if (currentsize[recipient] == maxsize)
-	return true;
-    else return false;
-}
-
+// Leave officeand call Wait()
 void Person::LeavePostOffice() {
-    printf("Person %d leaves Post Office.\n", id);
+    printf("   Person %d leaves Post Office.\n", id);
     Wait();
 }
 
+// Wait by yielding
 void Person::Wait() {
     int randNum = Random() % 4 + 2; // randomize num between 2-5
-    printf("  Person %d will return in %d cycles.\n", id, randNum);
+    printf("    Person %d will return in %d cycles.\n", id, randNum);
 
     for (int i = 0; i < randNum; i++)
 	currentThread->Yield();
-    EnterPostOffice();
+    //EnterPostOffice();
 }
 
 #endif
