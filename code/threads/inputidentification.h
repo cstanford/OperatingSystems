@@ -50,7 +50,7 @@ bool isNegativeInteger(char* input){
 
 bool isDecimal(char* input){
     char *temp = input;
-    int periodIndex = 0;
+    unsigned int periodIndex = 0;
     for(int i = 0; *temp != '\0'; temp++, i++){
         if(*temp == '.')
             periodIndex = i;
@@ -62,7 +62,7 @@ bool isDecimal(char* input){
     char left[256];
     char right[256];
 
-    int i;
+    unsigned int i;
 
     for(i = 0; i < periodIndex; i++)
         left[i] = *(input+i);

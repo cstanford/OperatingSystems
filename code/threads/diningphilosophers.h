@@ -3,36 +3,14 @@
 
 #include "system.h"
 #include "inputidentification.h"
+#include "philosopher_globals.h"
 #include "philosopher.h"
-
-int numOfPhilosophers = 0;  // Number of philosophers entered by the user.
-int numOfMeals = 0;	    // Number of meals entered by the user.
-
-int philosopherIdNumber = 0;
-  // Will be incremented for each philosopher, and used for method 
-  // setId(int philosopherIdNumber) in the philosopher class.
-	    
-
-bool *chopsticks; 
- // Will be pointed to an array  used to determine which chopsticks are 
- // available. True indicates that the chopstick is available. False otherwise.
-
-
-Philosopher *philosopherArrayPointer;
- // Will point to an array of philosophers.
-
-
-bool useSemaphores;
-
-bool philosophersHaveLeft = false;
- // Used to prevent each thread from printing the statement:
- //  "All philosophers leave the table together."
 
  // dummyParameters is only a placeholder to satisy the required parameters 
  // when forking a thread.
 void BeginDining(int dummyParameter) 
 {
-    Philosopher phil(numOfPhilosophers, numOfMeals, chopsticks, useSemaphores);
+    Philosopher phil(numOfPhilosophers, numOfMeals, chopsticks);
     philosopherArrayPointer[philosopherIdNumber] = phil;
     phil.setId(philosopherIdNumber);
     philosopherIdNumber++;
@@ -40,7 +18,7 @@ void BeginDining(int dummyParameter)
 
     while(philosopherIdNumber <= numOfPhilosophers)
     {
-        phil.wait(); // Causes thread to yield between 2 and 5 cycles.
+        phil.busyWait(); // Causes thread to yield between 2 and 5 cycles.
 
         if(philosopherIdNumber == numOfPhilosophers) { 
             //  once all philosophers have entered the room, each philosopher
@@ -56,7 +34,7 @@ void BeginDining(int dummyParameter)
     for (int i = 0; i < numOfPhilosophers; i++)
     {
         if(philosopherArrayPointer[i].hasSat() == false)
-            phil.wait();
+            phil.busyWait();
 
     }
     
@@ -86,11 +64,10 @@ void BeginDining(int dummyParameter)
 }
 
 
-void DiningPhilosophers(int ifUsingSemaphores)
+void DiningPhilosophers(int dummyParameters)
  // dummyParameters is only a placeholder to satisy the required parameters 
  // when forking a thread.
 {
-    useSemaphores = ifUsingSemaphores;
     char userInput[256];
     input_type type;
 

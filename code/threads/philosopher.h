@@ -8,7 +8,7 @@ class Philosopher {
 
     public:
     Philosopher();
-    Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[], bool ifUsingSemaphores);
+    Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[]);
     ~Philosopher();
 
     int getId();
@@ -31,7 +31,6 @@ class Philosopher {
     bool isReadyToLeave(); // Returns the value of ready to leave.
 
     private:
-    bool useSemaphores;
     bool isSitting;
     int id;
     bool *chopsticks;
@@ -54,11 +53,9 @@ Philosopher::Philosopher() {
 
 }
 
-Philosopher::Philosopher(int numOfPhilosophers, int &numOfMeals,
-		         bool chopsticksArray[], bool ifUsingSemaphores) {
+Philosopher::Philosopher(int numOfPhilosophers, int &numOfMeals, bool chopsticksArray[]) {
     id = 0;
     isSitting = false;
-    useSemaphores = ifUsingSemaphores;
     numberOfPhilosophers = numOfPhilosophers;
     numberOfMeals = &numOfMeals;
     chopsticks = chopsticksArray;
@@ -137,37 +134,37 @@ void Philosopher::pickUpRightChopstick() {
     if (chopsticks[ rightChopstickIndex ] == true) 
     {
         chopsticks[ rightChopstickIndex ] = false;
-	hasBothChopsticks = true;
-	  // if the philospher has picked up the right chopstick, he is already holding the left. 
+        hasBothChopsticks = true;
+        // if the philospher has picked up the right chopstick, he is already holding the left. 
 
 
         printf("Philosopher %d has picked up chopstick %d. \n", id, rightChopstickIndex);
-	return;
+        return;
     }
     else
-     {
-	int waitCount = 0;	
+    {
+	    int waitCount = 0;	
         while(chopsticks[ rightChopstickIndex ] == false && *numberOfMeals > 0 ) 
-	{
-	     waitCount++;
-	     wait();
-	    if(waitCount >= 5)
-	    {
-		printf("Philosopher %d has aborted picking up chopstick %d to prevent deadlock after 5 cycles!\n", id, rightChopstickIndex);
-		putDownLeftChopstick();
-		return;
-	    }
+        {
+	        waitCount++;
+	        wait();
+            if(waitCount >= 5)
+            {
+                printf("Philosopher %d has aborted picking up chopstick %d to prevent deadlock after 5 cycles!\n", id, rightChopstickIndex);
+                putDownLeftChopstick();
+                return;
+            }
         }
 
-	// If number of meals are < 0 do not pick up chopstick.
+        // If number of meals are < 0 do not pick up chopstick.
         if (*numberOfMeals <= 0)
-	{
-	    putDownLeftChopstick();
-            return;
+        {
+            putDownLeftChopstick();
+                return;
         }
 
-        chopsticks[ rightChopstickIndex ] == false;
-	hasBothChopsticks = true;
+        chopsticks[ rightChopstickIndex ] = false;
+        hasBothChopsticks = true;
         printf("Philosopher %d has picked up chopstick %d. \n", id, rightChopstickIndex);
     }
 }
@@ -240,13 +237,11 @@ void Philosopher::busyWait() {
 
 void Philosopher::wait() {
 
-    if(!useSemaphores){
-        int randInt = Random() % 4 + 2; // random number between 2 and 5.
+    int randInt = Random() % 4 + 2; // random number between 2 and 5.
 
-        for(int i = 0; i < randInt; i++)
-        {
-            currentThread->Yield();
-        }
+    for(int i = 0; i < randInt; i++)
+    {
+        currentThread->Yield();
     }
 
 }

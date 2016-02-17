@@ -3,6 +3,7 @@
 #include "shout.h"
 #include "inputidentification.h"
 #include "diningphilosophers.h"
+#include "s_diningphilosophers.h"
 
 
 //----------------------------------------------------------------------
@@ -62,7 +63,10 @@ ThreadTest()
     else if (customParameterArg == 3){
         Thread *dine = new Thread("DiningPhilosophersThread");
         dine->Fork(DiningPhilosophers, 0);
-	// NOTE: when using semaphores, pass a value of 1 to DiningPhilosophers!
+    }
+    else if (customParameterArg == 4){
+        Thread *dine = new Thread("S_DiningPhilosophersThread");
+        dine->Fork(S_DiningPhilosophers, 0);
     }
     else{
 	printf("Sorry, please use the paramters \"-A \" followed by an integer value 1 - 6.\n\n");
