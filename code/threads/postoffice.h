@@ -22,20 +22,23 @@ Semaphore **s_mailbox; //not currently in use
 
 struct Person {
 	int id;
-	int currentsize;
+	int currentsize;    // messages in mailbox
 	bool readyToLeave;
 };
+
+
 Person *personArrayPointer;
 
 int personID = 0;
 
 void Wait() {
-	int randNum = Random() % 4 + 2;
-	//printf("Person %d will return in %d cycles.\n", pers.id, randNum);
 
-	for (int i = 0; i < randNum; i++) {
-	    currentThread->Yield();
-	}
+    int randNum = Random() % 4 + 2;
+    //printf("Person %d will return in %d cycles.\n", pers.id, randNum);
+
+    for (int i = 0; i < randNum; i++) {
+	currentThread->Yield();
+    }
 }
 
 void PostOffice(int dummyParameter) {
@@ -54,100 +57,120 @@ void PostOffice(int dummyParameter) {
             //  once all people have been born, they can go to the postoffice
             break;
         }
-
     }
 
-    do // Continue eating until all meals are gone.
+    do 
     {
 	//pers.Enter();
 	//pers.ReadMail();
 	//pers.SendMail();
 	printf("Person %d has entered the Post Office.\n", pers.id);
 
-// Read Mail
+	// Read Mail
 	printf("Person %d has %d unread messages.\n", pers.id, pers.currentsize);
-    	    if (pers.currentsize == 0)
-		printf("Person %d's mailbox is empty.\n", pers.id);
-    	    else {
-		while (pers.currentsize > 0) {
-	 	    for (int i = 0; i < maxMessages; i++) {
-	    		//s_mailbox[pers.id * numOfPeople + i]->P();
-	    		if (mailbox[pers.id * numOfPeople + i] != 0) {
-			    printf("Person %d reads [ message %d ].", pers.id, mailbox[pers.id * numOfPeople + i]);
-			    mailbox[pers.id * numOfPeople + i] = 0;
-			    pers.currentsize -= 1;
-		//currentThread->Yield();
+
+	if (pers.currentsize == 0)
+	{
+	    printf("Person %d's mailbox is empty.\n", pers.id);
+	}
+    	else
+	{
+	    while (pers.currentsize > 0)
+	    {
+		for (int i = 0; i < maxMessages; i++)
+		{
+	    	    //s_mailbox[pers.id * numOfPeople + i]->P();
+		    if (mailbox[pers.id * numOfPeople + i] != 0)
+		     {
+			printf("Person %d reads [ message %d ].", pers.id, mailbox[pers.id * numOfPeople + i]);
+			mailbox[pers.id * numOfPeople + i] = 0;
+			pers.currentsize -= 1;
+			//currentThread->Yield();
 			//pers.Wait();
-	    		}
+	    	    }
 			//s_mailbox[pers.id * numOfPeople + i]->V();
-	  	    }
-		}
-    	    }
+	  	}
+	    }
+    	}
 // End Read Mail
 
 
 
-//Send Mail
 	int randPerson = Random() % numOfPeople;
-    	    while (randPerson == pers.id) {
+	while (randPerson == pers.id)
+	{	// Does not allow randPerson to be the same as the current person in the thread. 
 	    randPerson = Random() % numOfPeople;
-    	}
+	}
+    	// end of first do-while loop
 
 	int randMessage = Random() % 4 + 1;
-    	int recipientSize = personArrayPointer[randPerson].currentsize;
-    	printf("Person %d would like to send Person %d a message.\n", pers.id, randPerson);
-    	printf(" Person %d checks Person %d's inbox. They have %d messages.\n", pers.id, randPerson, recipientSize);
+	int recipientSize = personArrayPointer[randPerson].currentsize;
+	printf("Person %d would like to send Person %d a message.\n", pers.id, randPerson);
+	printf(" Person %d checks Person %d's inbox. They have %d messages.\n", pers.id, randPerson, recipientSize);
 
-	if (recipientSize == maxMessages) {
-	  printf("Person %d's inbox is full. Person %d will wait.\n", randPerson, pers.id);
-	  for (int i = 0; i < 4; i ++) {
-		    if (recipientSize < maxMessages) {
-			bool mailing = true;
-	 		int j = 0;
-	  		do {
-	      		    if (mailbox[randPerson * numOfPeople + j] == 0) {
-	          		printf("  Person %d has sent [ message %d ] to Person %d.\n", pers.id, randMessage, randPerson);
-		  		mailbox[randPerson * numOfPeople + j] = randMessage;
-	          		stamps -= 1;
-		  		personArrayPointer[randPerson].currentsize += 1;
-	          		mailing = false;
-		  		break;
-	      		    }
-	      		j += 1;
-          		} while (mailing);
+	if (recipientSize == maxMessages)
+	{
+	    printf("Person %d's inbox is full. Person %d will wait.\n", randPerson, pers.id);
+	    for (int i = 0; i < 4; i ++)
+	    {
+		if (recipientSize < maxMessages)
+		{
+		    bool mailing = true;
+		    int j = 0;
+		    do 
+		    {
+			if (mailbox[randPerson * numOfPeople + j] == 0)
+			{
+			    printf("  Person %d has sent [ message %d ] to Person %d.\n", pers.id, randMessage, randPerson);
+			    mailbox[randPerson * numOfPeople + j] = randMessage;
+			    stamps -= 1;
+			    personArrayPointer[randPerson].currentsize += 1;
+			    mailing = false;
+			    break;
+			}
+			j += 1;
+
+		    } while (mailing);
 
 			// make the above into a function for the love of god jesus christ
-		    }
-	    	    else if (i < 3) {
-			printf("    Person %d yields for %dth time because Person %d's full mailbox.\n", pers.id, (i+1), randPerson);
-			currentThread->Yield();
-		    }
-		    else if (i == 3) {
-			printf("    **DEADLOCK PREVENTION** Person %d aborts sending mail to Person %d's full mailbox.\n", pers.id, randPerson);
-			break;
-		    }
-	  }
+		}
+		else if (i < 3)
+		{
+		    printf("    Person %d yields for %dth time because Person %d's full mailbox.\n", pers.id, (i+1), randPerson);
+		    currentThread->Yield();
+		}
+		else if (i == 3)
+		{
+		    printf("    **DEADLOCK PREVENTION** Person %d aborts sending mail to Person %d's full mailbox.\n", pers.id, randPerson);
+		    break;
+		}
+	    }
 	}
-	else if (recipientSize < maxMessages) {
-	  bool mailing = true;
-	  int i = 0;
-	  do {
-	      if (mailbox[randPerson * numOfPeople + i] == 0) {
-	          printf("  Person %d has sent [ message %d ] to Person %d.\n", pers.id, randMessage, randPerson);
-		  mailbox[randPerson * numOfPeople + i] = randMessage;
-	          stamps -= 1;
-		  personArrayPointer[randPerson].currentsize += 1;
-	          mailing = false;
-		  break;
-	      }
-	      i += 1;
-          } while (mailing);
-	}
-// End SendMail
+	else if (recipientSize < maxMessages)
+	{
+	    bool mailing = true;
+	    int i = 0;
+	    do {
+		if (mailbox[randPerson * numOfPeople + i] == 0)
+		{
+		    printf("  Person %d has sent [ message %d ] to Person %d.\n", pers.id, randMessage, randPerson);
+		    mailbox[randPerson * numOfPeople + i] = randMessage;
+		    stamps -= 1;
+		    personArrayPointer[randPerson].currentsize += 1;
+		    mailing = false;
+		    break;
+		}
+		i += 1;
 
+	    } while (mailing);
+
+	}
+
+// End SendMail
 	printf("Person %d has left the post office.\n", pers.id);
 	Wait();
-    } while(stamps > 0);
+
+	} while(stamps > 0);
 
     printf("\n ***** The Post Office ran out of stamps! No more messages can be sent! *****\n");
 
