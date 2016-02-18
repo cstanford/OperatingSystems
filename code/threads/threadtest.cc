@@ -10,7 +10,7 @@
 // SimpleThread
 //  Loop 5 times, yielding the CPU to another ready thread 
 //  each iteration.
-//
+// 
 //  "which" is simply a number identifying the thread, for debugging
 //  purposes.
 //----------------------------------------------------------------------
@@ -44,7 +44,7 @@ ThreadTest()
       Thread *t = new Thread("forked thread");
 
       t->Fork(SimpleThread, 1);
-      SimpleThread(0);
+      SimpleThread(0); 
       
      *****************************************/
 
@@ -61,7 +61,7 @@ ThreadTest()
         Thread *shout = new Thread("ShoutItOutThread");
         shout->Fork(ShoutItOut, 0);
     }
-
+  
     // Stage 2
     // This thread forks to a dining philosophers simulation that uses busy loops
     else if (customParameterArg == 3){
@@ -80,7 +80,8 @@ ThreadTest()
     // This thread forks to a post office simulation that uses busy loops
     else if (customParameterArg == 5){
         Thread *postoffice = new Thread("PosOffBusyThread");
-        postoffice->Fork(PostOfficeBusy, 0);
+        //postoffice->Fork(PostOfficeBusy, 0);
+	postoffice->Fork(PostOfficeSimulation, 0);
     }
 
     // This thread forks to a dining philosophers simulation that uses semaphores
@@ -93,4 +94,4 @@ ThreadTest()
 	printf("Sorry, please use the paramters \"-A \" followed by an integer value 1 - 6.\n\n");
    } 
 
-} 
+}
