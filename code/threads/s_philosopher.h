@@ -96,84 +96,76 @@ void S_Philosopher::sit() {
 
 }
 
-void S_Philosopher::pickUpLeftChopstick() {
-
-
+void S_Philosopher::pickUpLeftChopstick() { 
+    printf("Philosopher %d is trying to pick up chopstick %d. \n", id, id);
+    
+    // If the chopstick is available pick it up and mark as
+    // unavailable. 
+    chopsticks[id]->P();
+    printf("Philosopher %d has picked up chopstick %d. \n", id, id);
 }
 
 
 void S_Philosopher::pickUpRightChopstick() {
+    // Index number of the philosophers right chopstick.
+    int rightChopstickIndex = (id + 1) % numberOfPhilosophers; 
+
+    printf("Philosopher %d is trying to pick up chopstick %d. \n", id, rightChopstickIndex);
+
+    chopsticks[rightChopstickIndex]->P();
+    hasBothChopsticks = true;
+    printf("Philosopher %d has picked up chopstick %d. \n", id, rightChopstickIndex);
     
 }
 
 void S_Philosopher::putDownLeftChopstick() {
+    chopsticks[id]->V();
+    printf("Philosopher %d has put down chopstick %d. \n", id, id);
 
-}
-
+} 
 void S_Philosopher::putDownRightChopstick() {
+    int rightChopstickIndex = (id + 1) % numberOfPhilosophers; 
 
-
+    chopsticks[rightChopstickIndex]->V();
+    printf("Philosopher %d has put down chopstick %d. \n", id, rightChopstickIndex);
 }
 
 void S_Philosopher::beginEating()
 {
-    pickUpLeftChopstick();
-    pickUpRightChopstick();
-    
-    if(!hasBothChopsticks)
-    { // If the philospher was not able to pick up both chopsticks 
-      // he should not continue eating.
-	if( *numberOfMeals <= 0)
-	{
-	    readyToLeave = true;
-	    printf("Philosopher %d is waiting to leave...\n", id);
-	}
-	return;
+    if(!readyToLeave){
+        pickUpLeftChopstick();
+        pickUpRightChopstick();
+        
+        if(*numberOfMeals > 0)
+        {
+            *numberOfMeals = *numberOfMeals - 1; 
+            printf("Philosopher %d has begun eating. %d meals remaining... \n", id, *numberOfMeals);
+            busyWait();
+            putDownLeftChopstick();
+            putDownRightChopstick();
+            think();
+        }	
+        else{ 
+            putDownLeftChopstick();
+            putDownRightChopstick();
+            readyToLeave = true;
+        }
     }
-    
-    if(*numberOfMeals > 0)
-    {
-        *numberOfMeals = *numberOfMeals - 1; 
-        printf("Philosopher %d has begun eating. %d meals remaining... \n", id, *numberOfMeals);
-        busyWait();
-        putDownLeftChopstick();
-        putDownRightChopstick();
-        think();
-	
-	if( *numberOfMeals <= 0)
-	{
-	    readyToLeave = true;
-	    printf("Philosopher %d is waiting to leave...\n", id);
-	}
-    }
-   else
-   {
-	readyToLeave = true;
-	printf("Philosopher %d is waiting to leave...\n", id);
-   }
-    
 
 }
 
 void S_Philosopher::busyWait() {
     //Sometimes it is useful to simply yield, otherwise determine which to do based on task number
     //Used for thinking and eating
-    int randInt = Random() % 4 + 2; // random number between 2 and 5.
+    int randInt = Random() % 3 + 2; // random number between 2 and 5.
 
     for(int i = 0; i < randInt; i++)
     {
-        currentThread->Yield();
+        //currentThread->Yield();
     }
 }
 
 void S_Philosopher::wait() {
-
-    int randInt = Random() % 4 + 2; // random number between 2 and 5.
-
-    for(int i = 0; i < randInt; i++)
-    {
-        currentThread->Yield();
-    }
 
 }
 

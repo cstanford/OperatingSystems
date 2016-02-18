@@ -7,54 +7,47 @@
 #include "philosopher_globals.h"
 #include "s_philosopher.h"
 
+Semaphore sit("sit", 0);
+Semaphore sitAux("sitAux", 0);
+Semaphore wait("Politeness", 1);
+Semaphore waitAux("ExtraPolite", 0);
+
+int sitCount = 0;
+int finishCount = 0;
  // dummyParameters is only a placeholder to satisy the required parameters 
  // when forking a thread.
 void S_BeginDining(int dummyParameter) 
 {
-    printf("We got this far?");
     S_Philosopher phil(numOfPhilosophers, numOfMeals, s_chopsticks);
     s_philosopherArrayPointer[philosopherIdNumber] = phil;
     phil.setId(philosopherIdNumber);
     philosopherIdNumber++;
     phil.join();
 
-    while(philosopherIdNumber <= numOfPhilosophers){
-        phil.busyWait(); // Causes thread to yield between 2 and 5 cycles.
-
-        if(philosopherIdNumber == numOfPhilosophers) { 
-            //  once all philosophers have entered the room, each philosopher
-            //  will sit down.
-            phil.sit();
-            break;
-        }
-    }
-
-
-    // Ensures that all philosophers have sat before continuting. 
-    for (int i = 0; i < numOfPhilosophers; i++){
-        if(s_philosopherArrayPointer[i].hasSat() == false)
-            phil.busyWait();
-    }
+    sit.P();
+    sitCount++;
+    phil.sit();
+    sit.V();
+    if(sitCount == numOfPhilosophers)
+        sitAux.V();
+    sitAux.P();
+    sitAux.V();
 
     // Continue eating until all meals are gone.
     do {
         phil.beginEating();
-        currentThread->Yield();
     }while(numOfMeals > 0);
 
-
-    // Ensures that the philosophers stay seated until all are finished eating.     
-    for(int i = 0; i < numOfPhilosophers; i++){
-        if(s_philosopherArrayPointer[i].isReadyToLeave() == false)
-            phil.wait();
+    wait.P();
+    finishCount++;
+    printf("Philosopher %d is waiting to leave...(%d Philosophers Remaining)\n", phil.getId(), numOfPhilosophers-finishCount);
+    if(finishCount == numOfPhilosophers){
+        printf("All philosophers leave the table together.\n\n");
+        waitAux.V();
     }
-
-    // Once the first thread prints the statement, no others will be able to. 
-    while(philosophersHaveLeft == false){	
-        philosophersHaveLeft = true;
-        printf("All philosophers leave the table together.\n\n");	
-    }
-    
+    wait.V();
+    waitAux.P();
+    waitAux.V();
 
 }
 
@@ -111,8 +104,7 @@ void S_DiningPhilosophers(int dummyParameters)
         t->Fork(S_BeginDining, 0);
         currentThread->Yield();
     }
-
-
+    sit.V();
 }
 
 
