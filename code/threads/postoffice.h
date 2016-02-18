@@ -10,28 +10,30 @@ int p = 0;	// # of people
 int s = 0;	// max # of messages in a person's inbox
 int m = 0;	// # messages sent before end of simulation
 
+int unread = 0; // # of unread mail at a given time
+
 int *mailbox; 
- // Points to a 2D array. If a value of the mailbox is 0, then there is nothing in that slot.
- //  First index will indicate whose mailbox it is; 2nd will indicate which mail slot
+ // Points to an array that holds the contents of everyone in the simulation's mailbox. 
+ // If a value of the mailbox is 0, then there is nothing in that slot.
+
+Semaphore **s_mailbox;
 
 int *mailboxcapacity;
  // Points to an array that holds the current capacity of the person's mailbox.
  // Size should be 0 < size < s, where s is max # of messages in a person's inbox
 
-//Semaphore *semaphore; //("postofficesemaphore", 1);
+Semaphore **s_mailboxcapacity;
+
+//Semaphore **mailsema;
+//  Points to an array that holds semaphores associated with particular mailbox slots (semaphore for *mailbox)
 
 void EnterPostOffice(int personID) {
-    Person pers(personID, s, m, mailbox, mailboxcapacity, p);
+    Person pers(personID, s, mailbox, mailboxcapacity, p, s_mailboxcapacity, s_mailbox);
 
     // While there are still messages to send.
-    while (m > 0) {
-	for (int i = 0; i < p; i++)
-		printf("capacity new thread %d\n", mailboxcapacity[i]);
-
+    do {
 	pers.EnterPostOffice();
-	//semaphore.P();
 	pers.CheckMail();
-	//semaphore.V();
 
 	//randomize a recipient for mail; if randomize yourself, keep randomizing until it's someone else
 	int randPerson = Random() % p;
@@ -40,7 +42,7 @@ void EnterPostOffice(int personID) {
 	}
 
 	printf("Person %d wants to send Person %d a message.\n", personID, randPerson);
-	printf(" Person %d checks - Person %d has %d messages in their mailbox.\n", personID, randPerson, mailboxcapacity[randPerson]);
+	printf(" Person %d sees Person %d has %d messages in their mailbox.\n", personID, randPerson, mailboxcapacity[randPerson]);
 
 	// if mailbox isn't at capacity, leave a message and decrement remaining messages to send, and leave post office
 	if (mailboxcapacity[randPerson] < s) {	
@@ -68,7 +70,7 @@ void EnterPostOffice(int personID) {
 		pers.LeaveMessage(randPerson);
 		m -= 1;
 	}
-    }
+    }while (m > 0);
 }
 
 void PostOfficeBusy(int fakeParameter) {
@@ -85,7 +87,9 @@ void PostOfficeBusy(int fakeParameter) {
 	p = atoi(userInput);
 	if(type != INTEGER)
 	    printf("Sorry, only positive integer values are allowed.");
-    } while(type != INTEGER);
+	else if(p <= 1)
+	    printf("Sorry, value must be greater than 1.");
+    } while(type != INTEGER || p <= 1);
 
     // gets the number of messages a person's inbox can hold.
     do{       
@@ -108,18 +112,38 @@ void PostOfficeBusy(int fakeParameter) {
     } while(type != INTEGER);
     // Input ends
 
-//    Semaphore semaphoreArray[p];
-    int mailboxArray[p * s];
-    int mailboxcapacityArray[p];
+    Semaphore *mailboxcapacitySemaphore[p];
+    for (int i = 0; i < p; i++)
+	mailboxcapacitySemaphore[i] = new Semaphore("Capacity", 1);
 
-    for (int i = 0; i < p; i++)	{
-	mailboxcapacityArray[i] = 0;	// loop that initializes mailboxCapacity to 0, meaning it's considered empty
+    s_mailboxcapacity = mailboxcapacitySemaphore;
+    
+
+    Semaphore *mailboxSemaphore[p * s];
+    for (int i = 0; i < p; i++)
 	for (int j = 0; j < s; j++)
-	    mailboxArray[i * p + j] = 0;	// nested loop that initializes mailbox values to 0, which is considered empty.
+	    mailboxSemaphore[i * p + j] = new Semaphore("Mailbox", 1);
+	
+
+    s_mailbox = mailboxSemaphore;
+
+    // Creates arrays for the mailbox, how much is in each mailbox, and semaphores for the mailbox capacity.
+    int mailboxcapacityArray[p];
+    int mailboxArray[p * s];
+
+
+    // Intialize values of the arrays
+    for (int i = 0; i < p; i++)	{
+	mailboxcapacityArray[i] = 0;
+	for (int j = 0; j < s; j++) {
+	    mailboxArray[i * p + j] = 0;
+	}
     }
 
+    // Have the pointers point to the arrays
     mailbox = mailboxArray;
     mailboxcapacity = mailboxcapacityArray;
+
 
     // forks p threads to enter the post office
     for( int i = 0; i < p; i++)

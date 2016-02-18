@@ -7,8 +7,9 @@
 class Person {
     public:
 	Person();
-	Person(int numID, int maxMessages, int &numOfMessages, 
-	       int mailboxArray[], int mailboxcapacityArray[], int numOfPeople);
+	Person(int numID, int maxMessages, int mailboxArray[], 
+	       int mailboxcapacityArray[], int numOfPeople, 
+	       Semaphore **mailcapsema, Semaphore **mailboxsema);
 	~Person();
 
 	void EnterPostOffice();
@@ -22,25 +23,30 @@ class Person {
 	int id;
 	int maxsize;
 	int *currentsize;
-	int *remainingMessages;
 	int *mailbox;
 	int maxpeople;
 
-	//To do: currentsize, mailbox, and remainingMessages are shared resources; implement semaphores where these are
+	Semaphore **s_mailcap;
+	Semaphore **s_mailbox;
+
+	//To do: currentsize, mailbox are shared resources; implement semaphores where these are
 	//To do: implement something to get rid of deadlock
 };
 
 Person::Person() { 
 }
 
-Person::Person(int numID, int maxMessages, int &numOfMessages, 
-	       int mailboxArray[], int mailboxcapacityArray[], int numOfPeople) {
+Person::Person(int numID, int maxMessages, int mailboxArray[], 
+	       int mailboxcapacityArray[], int numOfPeople, 
+	       Semaphore **mailcapsema, Semaphore **mailboxsema) {
     id = numID;
     maxsize = maxMessages;
-    remainingMessages = &numOfMessages;
     mailbox = mailboxArray;
     currentsize = mailboxcapacityArray;
     maxpeople = numOfPeople;
+    
+    //s_mailcap = mailcapsema;
+    s_mailbox = mailboxsema;
 }
 
 Person::~Person() { 
@@ -49,65 +55,45 @@ Person::~Person() {
 // Person enters post office and calls CheckMail function
 void Person::EnterPostOffice() {
     printf("Person %d has entered the Post Office.\n", id);
-    //CheckMail();
 }
 
 // Person checks mailbox. If they have no messages, they send mail. If they do, they first read their mail then send mail.
 void Person::CheckMail() {
+    //s_mailcap[id]->P();
     printf("Person %d checks their mailbox. They have %d messages.\n", id, currentsize[id]);
     if (currentsize[id] == 0) {
 	printf("  Person %d's mailbox is empty.\n", id);
 }
     else {
 	for (int i = 0; i < maxsize; i++) {
+	    s_mailbox[id * maxpeople + i]->P();
 	    if (mailbox[id * maxpeople + i] != 0) {
 		printf("  Person %d reads [message %d]\n", id, mailbox[id * maxpeople + i]);
 		mailbox[id * maxpeople + i] = 0;
-	        currentsize[id] = currentsize[id] - 1;
-	        //currentThread->Yield();
+		currentsize[id] = currentsize[id] - 1;
 	    }
+	    s_mailbox[id * maxpeople + i]->V();
 	}
     } 
-    //SendMail();
-
+    //s_mailcap[id]->V();
 }
 
-// Person sends mail to someone if there are remaining messages left to send & leaves post office. If recipient's mailbox is full, they'll wait to send mail.
-/*void Person::SendMail() {
-    int randPerson = Random() % maxpeople;
-    if (randPerson == id)	// if randomize yourself, calls SendMail again to randomize a new 
-	SendMail();
-    else {
-	if(*remainingMessages > 0) {
-	    printf("Person %d wants to send Person %d a message.\n", id, randPerson);
-	    if (currentsize[randPerson] < maxsize) {
-		LeaveMessage(randPerson);
-		LeavePostOffice();
-	    }
-	    else {
-		printf("  Person %d's mailbox is full. Person %d will try again later.\n", randPerson, id);
-		for (int i = 0; i < 3; i ++) {
-		    if (currentsize[randPerson] < maxsize)
-			LeaveMessage(randPerson);
-	    	    else currentThread->Yield();
-		CheckMail();
-		}
-	    }
-	}
-    }
-}*/
-
-// Person leaves random mail for recipient. Decrements remainingMessages to send.
+// Person leaves random mail for recipient.
 void Person::LeaveMessage(int recipient) {
+    //s_mailcap[recipient]->P();
+
     int randMessage = Random() % 5 + 1;
     currentsize[recipient] = currentsize[recipient] + 1;
-    //remainingMessages = remainingMessages - 1;
-    for (int i = 0; i < maxsize; i++)
+    for (int i = 0; i < maxsize; i++) {
+        s_mailbox[recipient * maxpeople + i]->P();
 	if (mailbox[recipient * maxpeople + i] == 0) {
 		mailbox[recipient * maxpeople + i] = randMessage;
 		break;
 	}
+        s_mailbox[recipient * maxpeople + i]->V();
+    }
     printf("  Person %d left [ message %d ] for Person %d.\n", id, randMessage, recipient);    
+    //s_mailcap[recipient]->V();
 }
 
 // Leave officeand call Wait()
@@ -123,7 +109,6 @@ void Person::Wait() {
 
     for (int i = 0; i < randNum; i++)
 	currentThread->Yield();
-    //EnterPostOffice();
 }
 
 #endif
