@@ -124,8 +124,8 @@ utility.o: ../threads/utility.cc ../threads/copyright.h \
   /usr/include/bits/wchar.h /usr/include/gconv.h ../threads/stdarg.h \
   /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
   /usr/include/string.h /usr/include/xlocale.h ../threads/stdarg.h
-threadtest.o: ../threads/threadtest.cc ../threads/copyright.h \
-  ../threads/system.h ../threads/utility.h ../threads/bool.h \
+threadtest.o: ../threads/threadtest.cc ../threads/system.h \
+  ../threads/copyright.h ../threads/utility.h ../threads/bool.h \
   ../machine/sysdep.h ../threads/copyright.h /usr/include/stdio.h \
   /usr/include/features.h /usr/include/sys/cdefs.h \
   /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
@@ -139,7 +139,8 @@ threadtest.o: ../threads/threadtest.cc ../threads/copyright.h \
   ../threads/scheduler.h ../threads/list.h ../machine/interrupt.h \
   ../threads/list.h ../machine/stats.h ../machine/timer.h \
   ../threads/utility.h ../threads/shout.h \
-  ../threads/inputidentification.h 
+  ../threads/inputidentification.h ../threads/diningphilosophers.h \
+  ../threads/philosopher.h ../threads/postoffice.h ../threads/synch.h
 interrupt.o: ../machine/interrupt.cc ../threads/copyright.h \
   ../machine/interrupt.h ../threads/list.h ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \

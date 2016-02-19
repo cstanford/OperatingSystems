@@ -14,7 +14,7 @@ int stamps;		// number of messages sent until simulation ends
 
 //int personID = 0;
 
-static int *mailbox; 		// Pointer to the mailboxes. making it static should make it be 1 that all the threads share.
+int *mailbox; 		// Pointer to the mailboxes. making it static should make it be 1 that all the threads share.
 
 bool postOfficeClosed = false;
 
@@ -27,7 +27,7 @@ struct Person {
 };
 
 
-Person *personArrayPointer;
+Person **personArrayPointer;
 
 int personID = 0;
 
@@ -46,7 +46,7 @@ void PostOffice(int dummyParameter) {
     pers.id = personID;
     pers.currentsize = 0;
     pers.readyToLeave = false;
-    personArrayPointer[personID] = pers;
+    personArrayPointer[personID] = &pers;
     personID++;
 
 
@@ -65,7 +65,8 @@ void PostOffice(int dummyParameter) {
 	//pers.ReadMail();
 	//pers.SendMail();
 	printf("Person %d has entered the Post Office.\n", pers.id);
-
+	
+	s_mailbox[pers.id]->P();
 	// Read Mail
 	printf("Person %d has %d unread messages.\n", pers.id, pers.currentsize);
 
@@ -82,16 +83,17 @@ void PostOffice(int dummyParameter) {
 	    	    //s_mailbox[pers.id * numOfPeople + i]->P();
 		    if (mailbox[pers.id * numOfPeople + i] != 0)
 		     {
-			printf("Person %d reads [ message %d ].", pers.id, mailbox[pers.id * numOfPeople + i]);
+			printf("Person %d reads [ pattern %d ].", pers.id, mailbox[pers.id * numOfPeople + i]);
 			mailbox[pers.id * numOfPeople + i] = 0;
 			pers.currentsize -= 1;
-			//currentThread->Yield();
+			currentThread->Yield();
 			//pers.Wait();
 	    	    }
 			//s_mailbox[pers.id * numOfPeople + i]->V();
 	  	}
 	    }
     	}
+	s_mailbox[pers.id]->V();
 // End Read Mail
 
 
@@ -101,10 +103,12 @@ void PostOffice(int dummyParameter) {
 	{	// Does not allow randPerson to be the same as the current person in the thread. 
 	    randPerson = Random() % numOfPeople;
 	}
-    	// end of first do-while loop
+	s_mailbox[randPerson]->P();
 
 	int randMessage = Random() % 4 + 1;
-	int recipientSize = personArrayPointer[randPerson].currentsize;
+	int recipientSize = personArrayPointer[randPerson]->currentsize;
+	if(recipientSize > 100)
+	    return;
 	printf("Person %d would like to send Person %d a message.\n", pers.id, randPerson);
 	printf(" Person %d checks Person %d's inbox. They have %d messages.\n", pers.id, randPerson, recipientSize);
 
@@ -121,10 +125,10 @@ void PostOffice(int dummyParameter) {
 		    {
 			if (mailbox[randPerson * numOfPeople + j] == 0)
 			{
-			    printf("  Person %d has sent [ message %d ] to Person %d.\n", pers.id, randMessage, randPerson);
+			    printf("  Person %d has sent [ pattern %d ] to Person %d.\n", pers.id, randMessage, randPerson);
 			    mailbox[randPerson * numOfPeople + j] = randMessage;
 			    stamps -= 1;
-			    personArrayPointer[randPerson].currentsize += 1;
+			    personArrayPointer[randPerson]->currentsize += 1;
 			    mailing = false;
 			    break;
 			}
@@ -153,10 +157,11 @@ void PostOffice(int dummyParameter) {
 	    do {
 		if (mailbox[randPerson * numOfPeople + i] == 0)
 		{
-		    printf("  Person %d has sent [ message %d ] to Person %d.\n", pers.id, randMessage, randPerson);
+		    printf("currently size %d\n\n", personArrayPointer[randPerson]->currentsize);
+		    printf("  Person %d has sent [ pattern %d ] to Person %d.\n", pers.id, randMessage, randPerson);
 		    mailbox[randPerson * numOfPeople + i] = randMessage;
 		    stamps -= 1;
-		    personArrayPointer[randPerson].currentsize += 1;
+		    personArrayPointer[randPerson]->currentsize += 1;
 		    mailing = false;
 		    break;
 		}
@@ -165,6 +170,9 @@ void PostOffice(int dummyParameter) {
 	    } while (mailing);
 
 	}
+	
+	 printf("currently size %d\n\n", personArrayPointer[randPerson]->currentsize);
+	s_mailbox[randPerson]->V();
 
 // End SendMail
 	printf("Person %d has left the post office.\n", pers.id);
@@ -177,7 +185,7 @@ void PostOffice(int dummyParameter) {
 // Ensures that the mail is all read
     for(int i = 0; i < numOfPeople; i++)
     {
-	if(personArrayPointer[i].readyToLeave == false)
+	if(personArrayPointer[i]->readyToLeave == false)
 	    Wait();
     }
     
@@ -229,22 +237,23 @@ void PostOfficeSimulation(int fakeParameter) {
 	    printf("Sorry, only positive integer values are allowed.");
     } while(type != INTEGER);
 
-    Semaphore *mailboxSemaphore[numOfPeople * maxMessages];
+    //Semaphore *mailboxSemaphore[numOfPeople];
+    //for (int i = 0; i < numOfPeople; i++)
+	//mailboxSemaphore[i] = new Semaphore("Mailbox", 1);
+
+    //s_mailbox = mailboxSemaphore;
+    s_mailbox = new Semaphore*[numOfPeople];
     for (int i = 0; i < numOfPeople; i++)
-	for (int j = 0; j < maxMessages; j++)
-	    mailboxSemaphore[i * numOfPeople + maxMessages] = new Semaphore("Mailbox", 1);
+	s_mailbox[i] = new Semaphore("Mailbox", 1);
 
-    s_mailbox = mailboxSemaphore;
-
-    int mailboxArray[numOfPeople * maxMessages];
+    mailbox = new int[numOfPeople * maxMessages];
     for (int i = 0; i < numOfPeople; i++) {
 	for (int j = 0; i < maxMessages; i++) {
-            mailboxArray[numOfPeople * i + j] = 0;
+            mailbox[numOfPeople * i + j] = 0;
 	}
     }
 
-    mailbox =  mailboxArray;
-    Person personArray[numOfPeople];
+    Person *personArray[numOfPeople];
     personArrayPointer = personArray;
 
     // forks p threads to enter the post office

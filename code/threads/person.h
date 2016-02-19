@@ -23,6 +23,7 @@ class Person {
 	int id;
 	int maxsize;
 	int *currentsize;
+
 	int *mailbox;
 	int maxpeople;
 
