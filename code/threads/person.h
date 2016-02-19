@@ -3,7 +3,8 @@
 
 #include "system.h"
 #include "synch.h"
-
+class Person;
+Person **people = new Person*[101];
 class Person {
     public:
 	Person();
@@ -31,7 +32,7 @@ class Person {
 	int *mailbox;
 	int maxpeople;
 
-	Person **people;
+	//Person **people;
 
 	Semaphore **s_mailbox;
 
@@ -52,7 +53,7 @@ Person::Person(int maxMessages, int mailboxArray[], int numOfPeople,
     
     s_mailbox = mailboxsema;
     readyToLeave = false;
-    people = personArrayPointer;
+    //people = personArrayPointer;
 }
 
 Person::~Person() { 
@@ -111,10 +112,10 @@ bool Person::SendMail() {
 		recipientSize = getCurrentSize(randPerson);
 		if (recipientSize < maxsize) {		// Yay! Some mail was read. mail something.
 		    printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		    
-		    mailbox[randPerson * maxpeople + recipientSize] = randMessage;
-		    mailbox[id * maxpeople + i] = 0;
-		    people[randPerson]->currentsize++;
+		    people[randPerson]->receiveLetter(randMessage);
+
 		    sent = true;
+		    break;
 		}
 	    	else if (i < 3) {
 		    printf("    Person %d yields for %dth time because Person %d's full mailbox.\n", id, (i+1), randPerson);
@@ -160,6 +161,7 @@ int Person::getCurrentSize(int index) {
 
 void Person::setID(int personID) {
 	id = personID;
+	people[id] = this;
 }
 
 bool Person::isReadyToLeave() {

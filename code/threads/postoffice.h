@@ -55,7 +55,7 @@ void PostOffice(int dummyParameter) {
 // Ensures that the mail is all read
     for(int i = 0; i < numOfPeople; i++)
     {
-	if(personArrayPointer[i]->readyToLeave == false)
+	if(people[i]->readyToLeave == false)
 	    pers->Wait();
     }
     
@@ -123,6 +123,7 @@ void PostOfficeSimulation(int fakeParameter) {
     // forks p threads to enter the post office
     for( int i = 0; i < numOfPeople; i++)
     {
+	
         Thread *t = new Thread("Person");
         t->Fork(PostOffice, i);
         currentThread->Yield();
