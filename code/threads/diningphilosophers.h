@@ -72,23 +72,40 @@ void DiningPhilosophers(int dummyParameters)
     input_type type;
 
     do{ // gets the number of philosophers from the user.
-        printf("\nEnter the number of philosophers: ");
+        printf("\nEnter the number of philosophers (1 - 600): ");
         getInput(userInput, 255);
         type = CheckType(userInput);
         numOfPhilosophers = atoi(userInput);
         if(type != INTEGER){
-            printf("Sorry, only positive integer values are allowed.");
+            printf("Sorry, only positive integer values are allowed.\n");
         }
+	if(numOfPhilosophers <= 1)
+	{
+	    printf("Sorry, please enter a value greater than 1.\n");
+	    type = DECIMAL;
+	    //forces a loop back.
+	}
+	if(numOfPhilosophers > 600)
+	{
+	    printf("Sorry, please enter a value less than 601.\n");
+	    type = DECIMAL;
+	}
      }while(type != INTEGER);
 
     do{ // gets the number of meals from the user.      
-        printf("\nEnter the number of meals: ");
+        printf("\nEnter the number of meals (0 - 600): ");
         getInput(userInput, 255);
         type = CheckType(userInput);
         numOfMeals = atoi(userInput);
         if(type != INTEGER){
             printf("Sorry, only positive integer values are allowed.");
         }
+	if(numOfMeals > 600)
+	{
+	    printf("Sorry, please enter a value less than 601.\n");
+	    type = DECIMAL;
+	}
+    
    }while(type != INTEGER);
 
     bool chopstickArray[numOfPhilosophers];
