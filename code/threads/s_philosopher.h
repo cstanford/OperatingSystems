@@ -133,8 +133,18 @@ void S_Philosopher::putDownRightChopstick() {
 void S_Philosopher::beginEating()
 {
     if(!readyToLeave){
-        pickUpLeftChopstick();
-        pickUpRightChopstick();
+        int rightChopstickIndex = (id + 1) % numberOfPhilosophers; 
+
+        //One of the solutions to preventing deadlock is to have a resource heirarchy.. that is, 
+        //if you are a philosopher, you must pick up your lower numbered chopstick first
+        //Then you can pick up the other one
+        if(rightChopstickIndex > id){
+            pickUpLeftChopstick();
+            pickUpRightChopstick();
+        }else {
+            pickUpRightChopstick();
+            pickUpLeftChopstick();
+        }
         
         if(*numberOfMeals > 0)
         {
@@ -161,7 +171,7 @@ void S_Philosopher::busyWait() {
 
     for(int i = 0; i < randInt; i++)
     {
-        //currentThread->Yield();
+        currentThread->Yield();
     }
 }
 
