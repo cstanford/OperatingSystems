@@ -140,7 +140,8 @@ threadtest.o: ../threads/threadtest.cc ../threads/system.h \
   ../threads/list.h ../machine/stats.h ../machine/timer.h \
   ../threads/utility.h ../threads/shout.h \
   ../threads/inputidentification.h ../threads/diningphilosophers.h \
-  ../threads/philosopher.h ../threads/postoffice.h ../threads/synch.h
+  ../threads/philosopher.h ../threads/postoffice.h ../threads/person.h \
+  ../threads/synch.h
 interrupt.o: ../machine/interrupt.cc ../threads/copyright.h \
   ../machine/interrupt.h ../threads/list.h ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
