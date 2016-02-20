@@ -8,11 +8,11 @@
 
 int numOfPeople;	// number of people that attend the post office
 int maxMessages;	// number of messages a person's mailbox can hold at one time
-int stamps;		// number of messages sent until simulation ends
+//int stamps;		// number of messages sent until simulation ends
 
 //int personID = 0;
 
-static int *mailbox; 		// Pointer to the mailboxes. making it static should make it be 1 that all the threads share.
+int *mailbox; 		// Pointer to the mailboxes. making it static should make it be 1 that all the threads share.
 
 bool postOfficeClosed = false;
 

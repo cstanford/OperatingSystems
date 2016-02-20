@@ -4,7 +4,9 @@
 #include "system.h"
 #include "synch.h"
 class Person;
-Person **people = new Person*[101];
+Person **people = new Person*[10000];
+
+int stamps = 0;
 class Person {
     public:
 	Person();
@@ -110,7 +112,7 @@ bool Person::SendMail() {
 	printf("Person %d's inbox is full. Person %d will wait.\n", randPerson, id);
 	    for (int i = 0; i < 4; i ++) {
 		recipientSize = getCurrentSize(randPerson);
-		if (recipientSize < maxsize) {		// Yay! Some mail was read. mail something.
+		if (recipientSize < maxsize && stamps > 0) {		// Yay! Some mail was read. mail something.
 		    printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		    
 		    people[randPerson]->receiveLetter(randMessage);
 
@@ -130,7 +132,7 @@ bool Person::SendMail() {
 	    }
 	}
 	// If recipient's mailbox isn't full
-	else if (recipientSize < maxsize) {
+	else if (recipientSize < maxsize && stamps > 0) {
 		printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		
 	        people[randPerson]->receiveLetter(randMessage);
 		sent = true;
