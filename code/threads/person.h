@@ -178,12 +178,16 @@ bool Person::SendMail() {
 // Leave office
 void Person::LeavePostOffice() {
     printf("   Person %d leaves Post Office.\n", id);
+    int randNum = Random() % 4 + 2; // randomize num between 2-5
+    printf("    Person %d will return in %d cycles.\n", id, randNum);
+
+    for (int i = 0; i < randNum; i++)
+	currentThread->Yield();
 }
 
 // Wait by yielding
 void Person::Wait() {
     int randNum = Random() % 4 + 2; // randomize num between 2-5
-    printf("    Person %d will return in %d cycles.\n", id, randNum);
 
     for (int i = 0; i < randNum; i++)
 	currentThread->Yield();

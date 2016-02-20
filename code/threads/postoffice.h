@@ -20,6 +20,10 @@ Semaphore **s_mailbox;
 
 Semaphore gate("HaIdiots", 1);
 Semaphore gateAux("GoingPostal", 0);
+Semaphore leaveGate("LeaveIdiots", 1);
+Semaphore leaveGateAux("TheySurvived", 0);
+
+int leaveCount = 0;
 
 Person **personArrayPointer;
 
@@ -56,7 +60,7 @@ void PostOffice(int dummyParameter) {
 	pers->Enter();
 	pers->ReadMail();
 	stamps -= pers->SendMail();
-	pers->Wait();
+	pers->LeavePostOffice();
     } while(stamps > 0);
 
     printf("\n ***** The Post Office ran out of stamps! No more messages can be sent! *****\n");
@@ -65,10 +69,20 @@ void PostOffice(int dummyParameter) {
 	pers->ReadMail();
     }
 // Ensures that the mail is all read
-    for(int i = 0; i < numOfPeople; i++)
-    {
-	if(people[i]->readyToLeave == false)
-	    pers->Wait();
+    if(!useSemaphore){
+	for(int i = 0; i < numOfPeople; i++)
+	{
+	    if(people[i]->readyToLeave == false)
+		pers->Wait();
+	}
+    }else {
+	leaveGate.P();
+	leaveCount++;
+	if(leaveCount == numOfPeople)
+	    leaveGateAux.V();
+	leaveGate.V();
+	leaveGateAux.P();
+	leaveGateAux.V();
     }
     
     while(postOfficeClosed == false)
@@ -76,7 +90,7 @@ void PostOffice(int dummyParameter) {
 	postOfficeClosed = true;
 	printf("\n ***** All messages have been sent and read! *****\n");
 	printf(" ***** All %d people have left the post office!  ***** \n", numOfPeople);
-	printf(" ***** The Post Office closes for the day.  ***** ");
+	printf(" ***** The Post Office closes for the day.  ***** \n");
 	
     }
 }
