@@ -18,6 +18,9 @@ bool postOfficeClosed = false;
 
 Semaphore **s_mailbox;
 
+Semaphore gate("HaIdiots", 1);
+Semaphore gateAux("GoingPostal", 0);
+
 Person **personArrayPointer;
 
 int personID = 0;
@@ -27,15 +30,25 @@ void PostOffice(int dummyParameter) {
     pers->setID(dummyParameter);
     personArrayPointer[dummyParameter] = pers;
 
-    personID++;
 
-    while(personID <= numOfPeople)
-    {
-        pers->Wait(); // Causes thread to yield between 2 and 5 cycles.
-        if(personID == numOfPeople) { 
-            //  once all people have been born, they can go to the postoffice
-            break;
-        }
+    if(!useSemaphore){
+	personID++;
+	while(personID <= numOfPeople)
+	{
+	    pers->Wait(); // Causes thread to yield between 2 and 5 cycles.
+	    if(personID == numOfPeople) { 
+		//  once all people have been born, they can go to the postoffice
+		break;
+	    }
+	}
+    }else {
+	gate.P();
+	personID++;
+	if(personID == numOfPeople)
+		gateAux.V();
+	gate.V();	
+	gateAux.P();
+	gateAux.V();
     }
 
     do // Continue until all messages have been mailed
