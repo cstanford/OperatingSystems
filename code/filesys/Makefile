@@ -177,9 +177,14 @@ threadtest.o: ../threads/threadtest.cc ../threads/system.h \
   ../machine/timer.h ../filesys/filesys.h ../filesys/synchdisk.h \
   ../machine/disk.h ../threads/synch.h ../threads/shout.h \
   ../threads/inputidentification.h ../threads/diningphilosophers.h \
+<<<<<<< HEAD
   ../threads/philosopher_globals.h ../threads/synch.h \
   ../threads/philosopher.h ../threads/s_philosopher.h \
   ../threads/s_diningphilosophers.h
+=======
+  ../threads/philosopher.h ../threads/postoffice.h ../threads/person.h \
+  ../threads/synch.h
+>>>>>>> kkz
 interrupt.o: ../machine/interrupt.cc ../threads/copyright.h \
   ../machine/interrupt.h ../threads/list.h ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \

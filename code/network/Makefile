@@ -185,9 +185,14 @@ threadtest.o: ../threads/threadtest.cc ../threads/system.h \
   ../machine/disk.h ../threads/synch.h ../network/post.h \
   ../threads/copyright.h ../machine/network.h ../threads/synchlist.h \
   ../threads/synch.h ../threads/shout.h ../threads/inputidentification.h \
+<<<<<<< HEAD
   ../threads/diningphilosophers.h ../threads/philosopher_globals.h \
   ../threads/philosopher.h ../threads/s_philosopher.h \
   ../threads/s_diningphilosophers.h
+=======
+  ../threads/diningphilosophers.h ../threads/philosopher.h \
+  ../threads/postoffice.h ../threads/person.h
+>>>>>>> kkz
 interrupt.o: ../machine/interrupt.cc ../threads/copyright.h \
   ../machine/interrupt.h ../threads/list.h ../threads/copyright.h \
   ../threads/utility.h ../threads/bool.h ../machine/sysdep.h \
