@@ -5,6 +5,7 @@
 #include "synch.h"
 class Person;
 Person **people = new Person*[10000];
+bool useSemaphore = false;
 
 int stamps = 0;
 class Person {
@@ -99,48 +100,79 @@ bool Person::SendMail() {
     	while (randPerson == id) {
 	    randPerson = Random() % maxpeople;
     	}
+	if(useSemaphore){
+	    s_mailbox[randPerson]->P();
 
-	s_mailbox[randPerson]->P();
+	    int randMessage = Random() % 4 + 1;
+	    int recipientSize = getCurrentSize(randPerson);
+	    printf("Person %d would like to send Person %d a message.\n", id, randPerson);
+	    printf(" Person %d checks Person %d's inbox. They have %d messages.\n", id, randPerson, recipientSize);
 
-	int randMessage = Random() % 4 + 1;
-    	int recipientSize = getCurrentSize(randPerson);
-    	printf("Person %d would like to send Person %d a message.\n", id, randPerson);
-    	printf(" Person %d checks Person %d's inbox. They have %d messages.\n", id, randPerson, recipientSize);
+	    // If Mailbox for recipient is full
+	    if (recipientSize == maxsize) {
+	    printf("Person %d's inbox is full. Person %d will wait.\n", randPerson, id);
+		for (int i = 0; i < 4; i ++) {
+		    recipientSize = getCurrentSize(randPerson);
+		    if (recipientSize < maxsize && stamps > 0) {		// Yay! Some mail was read. mail something.
+			printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		    
+			people[randPerson]->receiveLetter(randMessage);
 
-	// If Mailbox for recipient is full
-	if (recipientSize == maxsize) {
-	printf("Person %d's inbox is full. Person %d will wait.\n", randPerson, id);
-	    for (int i = 0; i < 4; i ++) {
-		recipientSize = getCurrentSize(randPerson);
-		if (recipientSize < maxsize && stamps > 0) {		// Yay! Some mail was read. mail something.
-		    printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		    
-		    people[randPerson]->receiveLetter(randMessage);
-
-		    sent = true;
-		    break;
-		}
-	    	else if (i < 3) {
-		    printf("    Person %d yields for %dth time because Person %d's full mailbox.\n", id, (i+1), randPerson);
-			s_mailbox[randPerson]->V();
-			currentThread->Yield();
-			s_mailbox[randPerson]->P();
-		}
-		else if (i == 3) {
-		    printf("    **DEADLOCK PREVENTION** Person %d aborts sending mail to Person %d's full mailbox.\n", id, randPerson);
-		    break;
+			sent = true;
+			break;
+		    }
+		    else if (i < 3) {
+			printf("    Person %d yields for %dth time because Person %d's full mailbox.\n", id, (i+1), randPerson);
+			    s_mailbox[randPerson]->V();
+			    currentThread->Yield();
+			    s_mailbox[randPerson]->P();
+		    }
+		    else if (i == 3) {
+			printf("    **DEADLOCK PREVENTION** Person %d aborts sending mail to Person %d's full mailbox.\n", id, randPerson);
+			break;
+		    }
 		}
 	    }
-	}
-	// If recipient's mailbox isn't full
-	else if (recipientSize < maxsize && stamps > 0) {
-		printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		
-	        people[randPerson]->receiveLetter(randMessage);
-		sent = true;
-	}
-	s_mailbox[randPerson]->V();
+	    // If recipient's mailbox isn't full
+	    else if (recipientSize < maxsize && stamps > 0) {
+		    printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		
+		    people[randPerson]->receiveLetter(randMessage);
+		    sent = true;
+	    }
+	    s_mailbox[randPerson]->V();
+	}else {
+	    int timesYielded = 0;
+	    int randMessage = Random() % 4 + 1;
+	    int recipientSize = getCurrentSize(randPerson);
+	    // If Mailbox for recipient is full
+	    printf("Person %d would like to send Person %d a message.\n", id, randPerson);
+	    printf(" Person %d checks Person %d's inbox. They have %d messages.\n", id, randPerson, recipientSize);
+	    if (recipientSize == maxsize) {
+		printf("Person %d's inbox is full. Person %d will wait.\n", randPerson, id);
+		while(recipientSize == maxsize){
+		    if (timesYielded == 3) {
+			printf("    **DEADLOCK PREVENTION** Person %d aborts sending mail to Person %d's full mailbox.\n", id, randPerson);
+			break;
+		    }
+		    printf("    Person %d yields for %dth time because Person %d's full mailbox.\n", id, (timesYielded+1), randPerson);
+		    currentThread->Yield();
+		    recipientSize = getCurrentSize(randPerson);
+		    timesYielded += 1;
+		}
+		if (recipientSize < maxsize && stamps > 0) {
+			printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		
+			people[randPerson]->receiveLetter(randMessage);
+			sent = true;
+		}
+	    }
 
+	    // If recipient's mailbox isn't full
+	    else if (recipientSize < maxsize && stamps > 0) {
+		    printf("  Person %d has sent [ pattern %d ] to Person %d.\n", id, randMessage, randPerson);		
+		    people[randPerson]->receiveLetter(randMessage);
+		    sent = true;
+	    }
+	}
 	return sent;
-
 }
 
 // Leave office

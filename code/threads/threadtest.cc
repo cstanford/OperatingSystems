@@ -90,9 +90,9 @@ ThreadTest()
 
     // This thread forks to a dining philosophers simulation that uses semaphores
     else if (customParameterArg == 6){
-        //Thread *postoffice = new Thread("DiningPhilosophersThread");
-        //postoffice->Fork(DiningPhilosophers, 0);
-	// NOTE: when using semaphores, pass a value of 1 to DiningPhilosophers!
+        Thread *postoffice = new Thread("PosOffBusyThread");
+        //postoffice->Fork(PostOfficeBusy, 0);
+	postoffice->Fork(PostOfficeSimulation, 1);
     }
     else{
 	printf("Sorry, please use the paramters \"-A \" followed by an integer value 1 - 6.\n\n");

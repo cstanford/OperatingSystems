@@ -45,7 +45,6 @@ void PostOffice(int dummyParameter) {
 	stamps -= pers->SendMail();
 	pers->Wait();
     } while(stamps > 0);
-//>>>>>>> Stashed changes
 
     printf("\n ***** The Post Office ran out of stamps! No more messages can be sent! *****\n");
 
@@ -70,10 +69,11 @@ void PostOffice(int dummyParameter) {
 }
 
 
-void PostOfficeSimulation(int fakeParameter) {
+void PostOfficeSimulation(int useSems) {
     
     char userInput[256];
     input_type type;
+    useSemaphore = useSems;
 
     // gets the number of people participating in simulation.
     do{       
