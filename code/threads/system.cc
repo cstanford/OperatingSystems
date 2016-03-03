@@ -14,6 +14,11 @@ Timer *timer;                           // the hardware timer device,
 
 int customParameterArg; // argument for custom paramter -A
 
+//MAIN COURSE//
+
+int globalThreadID = 0;
+Semaphore globalThreadIDSem("threadIDSem", 1);
+
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
 #endif

@@ -53,6 +53,8 @@ ThreadTest()
     // This thread checks for valid input
     if (customParameterArg == 1){
         Thread *checkInput = new Thread("InputIdentificationThread");
+	int threadID = currentThread->getThisThreadID();
+	printf("first id: %d \n", threadID);
         checkInput->Fork(InputIdentification, 0);
     }
 

@@ -27,3 +27,7 @@
 *.out
 *.app
 nachos
+Makefile
+coff2noff
+vm
+*.s

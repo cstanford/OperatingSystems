@@ -37,6 +37,8 @@ StartProcess(char *filename)
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
+    printf("File name is %s", filename);
+    printf("Alex? is right!  USER THREAD? %d", currentThread->getThisThreadID());
 
     machine->Run();			// jump to the user progam
     ASSERT(FALSE);			// machine->Run never returns;

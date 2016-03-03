@@ -38,6 +38,13 @@ Thread::Thread(char* threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+
+    globalThreadIDSem.P();
+    thisThreadID = globalThreadID;
+    globalThreadID++;
+    globalThreadIDSem.V();
+    
+
 #ifdef USER_PROGRAM
     space = NULL;
 #endif
@@ -62,6 +69,12 @@ Thread::~Thread()
     ASSERT(this != currentThread);
     if (stack != NULL)
 	DeallocBoundedArray((char *) stack, StackSize * sizeof(int));
+}
+
+int Thread::getThisThreadID()
+{
+    return thisThreadID;
+
 }
 
 //----------------------------------------------------------------------
