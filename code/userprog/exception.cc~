@@ -33,9 +33,7 @@
 static int SRead(int addr, int size, int id);
 static void SWrite(char *buffer, int size, int id);
 
-SpaceId SExec(int filename);
-void execFunc(int filename);
-char* readString(int addr);
+static void SExec(char *filename);
 
 // end FA98
 
@@ -92,6 +90,7 @@ ExceptionHandler(ExceptionType which)
 
     case SC_Halt :
 	DEBUG('t', "Shutdown, initiated by user program.\n");
+	printf("Connor is right: %d \n", proof);
 	interrupt->Halt();
 	break;
 
@@ -127,7 +126,8 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Exec :
-	machine->WriteRegister(2, SExec(arg1));
+	SExec(machine->ReadRegister(4));
+	
 	break;
 
     case SC_Exit :
@@ -193,21 +193,6 @@ ExceptionHandler(ExceptionType which)
     delete [] ch;
 }
 
-char* readString(int addr){
-    char str[500];
-    int i;
-    int j;
-    for(j = 0; ; j++){
-	if(!machine->ReadMem((addr+j), 1, &i))
-	    j = j-1;
-	else {
-	    str[j] = (char)i;
-	    if(str[j] == '\0')
-		break;
-	}
-    }
-    return str;
-}
 
 static int SRead(int addr, int size, int id)  //input 0  output 1
 {
@@ -263,40 +248,33 @@ static void SWrite(char *buffer, int size, int id)
 	WriteFile(id,buffer,size);
 }
 
-SpaceId SExec(int filename)
+static void SExec(char *filename) //needs to be AddrSpace
 {
-    char* name = readString(filename);
-    printf("THE FILENAME IS %s\n", name);
-    //Create a new thread to do this stuff
-    OpenFile *executable = fileSystem->Open(name);
+    //Bitmap.print();
+
+    OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
 
-    Thread *userProg = new Thread(name);
-    
-
-    if (executable == NULL) {
-	printf("Unable to open file %s\n", name);
-	return -1;
+    if(executable == NULL)
+    {
+	printf("Unable to open file %s\n", filename);
+	return;
     }
-    space = new AddrSpace(executable);    
-    userProg->space = space;
+    
+    space = new AddrSpace(exectutable);
+    currentThread->space = space;
 
-    delete executable;			// close file
+    delete executable;
+    
+    space->InitRegisers();
+    space->RestoreState();
 
-   // userProg->space->InitRegisters();		// set the initial register values
-    //userProg->space->RestoreState();		// load page table register
-    printf("\nFile name is %s\n", name);
-
-    userProg->Fork(execFunc, (int)name);
-
-    return userProg->getThisThreadID();
-
-}
-
-void execFunc(int filename)
-{
-    currentThread->space->InitRegisters();
     machine->Run();
+    ASSERT(FALSE); //Not sure about this.
+
+    //return spaceID?
+
+
 }
 
 // end FA98

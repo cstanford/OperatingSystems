@@ -10,10 +10,12 @@
  *	be careful to allocate a big enough stack to hold the automatics!
  */
 
-#include "syscall.h"
+#include "syscall.h" 
+
 int
 main()
 {
+    Write("KRISTA AY\n", 10, 1);
     Halt();
     /* not reached */
 }
