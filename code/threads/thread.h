@@ -103,6 +103,8 @@ class Thread {
     void Print() { printf("%s, ", name); }
     
     int getThisThreadID();
+    int getParentID();
+    void setParentID(int pID);
 
   private:
     // some of the private data for this class is listed above
@@ -118,6 +120,7 @@ class Thread {
 					// Used internally by Fork()
 
     int thisThreadID;
+    int parentID;
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 

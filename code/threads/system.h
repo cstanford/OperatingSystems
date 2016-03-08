@@ -17,6 +17,7 @@
 #include "timer.h"
 
 #include "synch.h"
+#include "../userprog/bitmap.h"
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -57,5 +58,6 @@ extern SynchDisk   *synchDisk;
 #include "post.h"
 extern PostOffice* postOffice;
 #endif
+
 
 #endif // SYSTEM_H

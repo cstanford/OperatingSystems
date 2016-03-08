@@ -125,10 +125,6 @@ void InputIdentification(int dummyParameter){
     printf("Please enter a value less than 256 characters: ");
     getInput(input, 256);
 
-    int thisID = currentThread->getThisThreadID();
-
-    printf("This id is: %d \n\n", thisID);
-
     PrintType(CheckType(input));
 
   /****** Used for testing ************  

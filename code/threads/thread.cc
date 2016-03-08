@@ -43,6 +43,9 @@ Thread::Thread(char* threadName)
     thisThreadID = globalThreadID;
     globalThreadID++;
     globalThreadIDSem.V();
+
+    parentID = NULL;
+    
     
 
 #ifdef USER_PROGRAM
@@ -76,6 +79,17 @@ int Thread::getThisThreadID()
     return thisThreadID;
 
 }
+
+int Thread::getParentID()
+{
+    return parentID;
+}
+
+void Thread::setParentID(int pID)
+{
+    parentID = pID;
+}
+
 
 //----------------------------------------------------------------------
 // Thread::Fork

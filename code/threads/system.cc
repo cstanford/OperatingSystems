@@ -16,8 +16,11 @@ int customParameterArg; // argument for custom paramter -A
 
 //MAIN COURSE//
 
-int globalThreadID = 0;
+int globalThreadID = 1;
+// Changed initial value to 1 because threads have an initial parentID of 0
+
 Semaphore globalThreadIDSem("threadIDSem", 1);
+//END MAIN COURSE//
 
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
