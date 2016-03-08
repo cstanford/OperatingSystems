@@ -130,9 +130,16 @@ void
 BitMap::Print() 
 {
     printf("Bitmap set:\n"); 
-    for (int i = 0; i < numBits; i++)
-	if (Test(i))
-	    printf("%d, ", i);
+    printf("[");
+    int count = 0;
+    for (int i = 0; i < numBits; i++){
+	if(Test(i)) count++;
+	if(i==numBits-1)
+	    printf("%d", Test(i));
+	else
+	    printf("%d ", Test(i));
+    }
+    printf("] %d%%", (int)((float)(100.0f*count)/(float)numBits));
     printf("\n"); 
 }
 

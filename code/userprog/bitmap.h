@@ -18,7 +18,6 @@
 #include "copyright.h"
 #include "utility.h"
 #include "openfile.h"
-
 // Definitions helpful for representing a bitmap as an array of integers
 #define BitsInByte 	8
 #define BitsInWord 	32

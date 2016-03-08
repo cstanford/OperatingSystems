@@ -85,18 +85,32 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					numPages, size);
+
 // first, set up the translation 
+    bitMapSem.P();
+    int avail = 0;
+    for(int i = 0; i < NumPhysPages; i++){
+	if(!pageBitMap.Test(i)){
+	    avail = i;
+	    break;
+	}
+    }
     pageTable = new TranslationEntry[numPages];
-    for (i = 0; i < numPages; i++) {
-	pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-	pageTable[i].physicalPage = i;
-	pageTable[i].valid = TRUE;
-	pageTable[i].use = FALSE;
-	pageTable[i].dirty = FALSE;
-	pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
+    for (i = avail; i < avail+numPages; i++) {
+	pageBitMap.Mark(i);
+	pageTable[i-avail].virtualPage = i;	// for now, virtual page # = phys page #
+	pageTable[i-avail].physicalPage = i;
+	pageTable[i-avail].valid = TRUE;
+	pageTable[i-avail].use = FALSE;
+	pageTable[i-avail].dirty = FALSE;
+	pageTable[i-avail].readOnly = FALSE;  // if the code segment was entirely on 
 					// a separate page, we could set its 
 					// pages to be read-only
     }
+    pageBitMap.Print();
+    bitMapSem.V();
+
+    
     
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
