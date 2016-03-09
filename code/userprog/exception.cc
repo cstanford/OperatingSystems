@@ -139,6 +139,7 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Exit :
+	currentThread->Finish();
 	break;
 
     case SC_Join :
@@ -310,7 +311,7 @@ void execFunc(int filename)
     currentThread->space->RestoreState();		// load page table register
     printf("CURRENTLY RUNNING THREAD %d", currentThread->getThisThreadID());
     machine->Run();
-    ASSERT(false);
+    //ASSERT(false);
 }
 
 // end FA98

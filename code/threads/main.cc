@@ -104,6 +104,7 @@ main(int argc, char **argv)
 	        ConsoleTest(*(argv + 1), *(argv + 2));
 	        argCount = 3;
 	    }
+	    printf("Made it\n");
 	    interrupt->Halt();		// once we start the console, then 
 					// Nachos will loop forever waiting 
 					// for console input

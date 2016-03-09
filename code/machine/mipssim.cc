@@ -532,6 +532,7 @@ Machine::OneInstruction(Instruction *instr)
 	break;
     	
       case OP_SYSCALL:
+	//printf("SYS CALL SHIT\n");
 	RaiseException(SyscallException, 0);
 	return; 
 	
