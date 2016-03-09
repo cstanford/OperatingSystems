@@ -17,7 +17,6 @@
 #include "timer.h"
 
 #include "synch.h"
-#include "../userprog/bitmap.h"
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -37,7 +36,7 @@ extern int customParameterArg;
 //MAIN COURSE//
 extern int globalThreadID;
 extern Semaphore globalThreadIDSem;
-
+extern Semaphore bitMapSem;
 
 #ifdef USER_PROGRAM
 #include "machine.h"
