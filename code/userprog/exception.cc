@@ -26,10 +26,11 @@
 #include "system.h"
 #include "syscall.h"
 #include "addrspace.h"   // FA98
+#include "synch.h"
 #include "sysdep.h"   // FA98
 
 // begin FA98
-
+static Semaphore consoleSem("Protects read/write", 1);
 static int SRead(int addr, int size, int id);
 static void SWrite(char *buffer, int size, int id);
 
@@ -73,6 +74,8 @@ ExceptionHandler(ExceptionType which)
     int Result;
     int i, j;
     int proof = currentThread->getThisThreadID();
+    printf("----CURRENT-THREAD-%d----\n", proof);
+    printf("----CURRENT-WHICH-%d----\n", which);
     char *ch = new char [500];
 
     switch ( which )
@@ -87,11 +90,13 @@ ExceptionHandler(ExceptionType which)
     machine->registers[PCReg] = machine->registers[NextPCReg];
     machine->registers[NextPCReg] = machine->registers[NextPCReg] + 4;
 
+    printf("TYPE IS %d\n", type);
     switch ( type )
     {
 
     case SC_Halt :
 	DEBUG('t', "Shutdown, initiated by user program.\n");
+    printf("HALTING\n");
 	interrupt->Halt();
 	break;
 
@@ -108,6 +113,7 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Write :
+    printf("----PERFORMED-SC-WRITE----\n");
 	for (j = 0; ; j++) {
 	    if(!machine->ReadMem((arg1+j), 1, &i))
 		j=j-1;
@@ -127,6 +133,8 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Exec :
+     
+    printf("----PERFORMED-SC-EXEC----\n");
 	machine->WriteRegister(2, SExec(arg1));
 	break;
 
@@ -137,6 +145,7 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Yield :
+    printf("----PERFORMED-SC-YIELD----\n");
 	currentThread->Yield();
 	break;
 
@@ -256,8 +265,11 @@ static int SRead(int addr, int size, int id)  //input 0  output 1
 static void SWrite(char *buffer, int size, int id)
 {
     //write to terminal, try writting your own code using console class.
-    if (id == 1)
-	printf("%s", buffer);
+    if (id == 1){
+        consoleSem.P();
+        printf("%s", buffer);
+        consoleSem.V();
+    }
     //write to a unix file, later you need change to nachos file system.
     if (id >= 2)
 	WriteFile(id,buffer,size);
@@ -283,9 +295,8 @@ SpaceId SExec(int filename)
 
     delete executable;			// close file
 
-   // userProg->space->InitRegisters();		// set the initial register values
+    //userProg->space->InitRegisters();		// set the initial register values
     //userProg->space->RestoreState();		// load page table register
-    printf("\nFile name is %s\n", name);
 
     userProg->Fork(execFunc, (int)name);
 
@@ -296,7 +307,10 @@ SpaceId SExec(int filename)
 void execFunc(int filename)
 {
     currentThread->space->InitRegisters();
+    currentThread->space->RestoreState();		// load page table register
+    printf("CURRENTLY RUNNING THREAD %d", currentThread->getThisThreadID());
     machine->Run();
+    ASSERT(false);
 }
 
 // end FA98

@@ -88,45 +88,50 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 // first, set up the translation 
     bitMapSem.P();
-    int avail = 0;
+    int avail = -1;
     for(int i = 0; i < NumPhysPages; i++){
-	if(!pageBitMap.Test(i)){
-	    avail = i;
-	    break;
-	}
+        if(!pageBitMap.Test(i)){
+            avail = i;
+            break;
+        }
     }
+    ASSERT(avail != -1);
     pageTable = new TranslationEntry[numPages];
-    for (i = avail; i < avail+numPages; i++) {
-	pageBitMap.Mark(i);
-	pageTable[i-avail].virtualPage = i;	// for now, virtual page # = phys page #
-	pageTable[i-avail].physicalPage = i;
-	pageTable[i-avail].valid = TRUE;
-	pageTable[i-avail].use = FALSE;
-	pageTable[i-avail].dirty = FALSE;
-	pageTable[i-avail].readOnly = FALSE;  // if the code segment was entirely on 
-					// a separate page, we could set its 
-					// pages to be read-only
+    for (i = 0; i < numPages; i++) {
+        pageBitMap.Mark(i+avail);
+        pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
+        pageTable[i].physicalPage = i+avail;
+        pageTable[i].valid = TRUE;
+        pageTable[i].use = FALSE;
+        pageTable[i].dirty = FALSE;
+        pageTable[i].readOnly = FALSE;  // if the code segment was entirely on 
+                        // a separate page, we could set its 
+                        // pages to be read-only
+        //bzero(&(machine->mainMemory[PageSize*(avail+i)]), PageSize );
     }
     pageBitMap.Print();
     bitMapSem.V();
-
-    
-    
+ 
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
-    bzero(machine->mainMemory, size);
-
+    //bzero(machine->mainMemory, size);
+    for(int i=0; i<numPages; i++)
+    {
+        bzero( &(machine->mainMemory[pageTable[i].physicalPage * PageSize]), PageSize );
+    }
 // then, copy in the code and data segments into memory
+    int physAddr = pageTable[noffH.code.virtualAddr/PageSize].physicalPage*PageSize + (noffH.code.virtualAddr%PageSize);
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
 			noffH.code.virtualAddr, noffH.code.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
+        executable->ReadAt(&(machine->mainMemory[physAddr]),
 			noffH.code.size, noffH.code.inFileAddr);
     }
+    physAddr = pageTable[noffH.initData.virtualAddr/PageSize].physicalPage*PageSize + (noffH.initData.virtualAddr%PageSize);
     if (noffH.initData.size > 0) {
         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
 			noffH.initData.virtualAddr, noffH.initData.size);
-        executable->ReadAt(&(machine->mainMemory[noffH.initData.virtualAddr]),
+        executable->ReadAt(&(machine->mainMemory[physAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
 
@@ -183,7 +188,10 @@ AddrSpace::InitRegisters()
 //----------------------------------------------------------------------
 
 void AddrSpace::SaveState() 
-{}
+{ 
+    pageTable = machine->pageTable;
+    numPages = machine->pageTableSize;
+}
 
 //----------------------------------------------------------------------
 // AddrSpace::RestoreState

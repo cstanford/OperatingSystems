@@ -19,10 +19,18 @@
 // 	Run a user program.  Open the executable, load it into
 //	memory, and jump to it.
 //----------------------------------------------------------------------
-
+void execFunc2(int null)
+{
+    currentThread->space->InitRegisters();
+    currentThread->space->RestoreState();		// load page table register
+    printf("CURRENTLY RUNNING THREAD %d", currentThread->getThisThreadID());
+    machine->Run();
+    ASSERT(false);
+}
 void
 StartProcess(char *filename)
 {
+    Thread *main = new Thread("Main thread");
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
 
@@ -31,17 +39,11 @@ StartProcess(char *filename)
 	return;
     }
     space = new AddrSpace(executable);    
-    currentThread->space = space;
+    main->space = space;
 
     delete executable;			// close file
 
-    space->InitRegisters();		// set the initial register values
-    space->RestoreState();		// load page table register
-    printf("File name is %s", filename);
-    printf("Alex? is right!  USER THREAD? %d", currentThread->getThisThreadID());
-
-    machine->Run();			// jump to the user progam
-    ASSERT(FALSE);			// machine->Run never returns;
+    main->Fork(execFunc2, NULL);
 					// the address space exits
 					// by doing the syscall "exit"
 }
