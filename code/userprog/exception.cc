@@ -28,6 +28,7 @@
 #include "addrspace.h"   // FA98
 #include "synch.h"
 #include "sysdep.h"   // FA98
+#include "list.h"
 
 // begin FA98
 static Semaphore consoleSem("Protects read/write", 1);
@@ -36,10 +37,12 @@ static void SWrite(char *buffer, int size, int id);
 
 SpaceId SExec(int filename);
 void execFunc(int filename);
-void joinFunc(int child);
+int joinFunc(int child);
 char* readString(int addr);
 extern BitMap* pageBitMap;
 void exitFunc();
+
+List pcbList;	//list to keep track of parent-children processessss
 
 // end FA98
 
@@ -143,6 +146,7 @@ ExceptionHandler(ExceptionType which)
 
     case SC_Join :
 	joinFunc(arg1);
+//	machine->WriteRegister(2, JoinFunc(arg1));
 	break;
 
     case SC_Yield :
@@ -300,6 +304,7 @@ SpaceId SExec(int filename)
     //userProg->space->InitRegisters();		// set the initial register values
     //userProg->space->RestoreState();		// load page table register
 
+//	pcbList.append
     userProg->Fork(execFunc, (int)name);
     userProg->setParentID(currentThread->getThisThreadID());
     userProg->setParentThread(currentThread);
@@ -340,9 +345,10 @@ void exitFunc()
     currentThread->Finish();    
 
 }
-void joinFunc(int child){
+int joinFunc(int child){
     currentThread->setWaitingID(child);
     currentThread->joinSem->P();
+	return 0;
 }
 
 // end FA98
