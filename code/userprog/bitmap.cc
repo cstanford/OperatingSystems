@@ -285,4 +285,15 @@ int BitMap::WorstFit(int size)
 	}
 	return index;
 }
+
+void BitMap::printFit(int fitNum)
+{
+    if (fitNum == 3)
+	printf("Selected: Worst Fit\n");
+    else if (fitNum == 2)
+	printf("Selected: Best Fit\n");
+    else
+	printf("Selected: First Fit\n");
+ 
+}
 // End Main course

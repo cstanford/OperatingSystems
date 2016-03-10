@@ -56,6 +56,7 @@ class BitMap {
     int FirstFit(int size);
     int BestFit(int size);
     int WorstFit(int size);
+    void printFit(int fitNum);
 
   private:
     int numBits;			// number of bits in the bitmap
