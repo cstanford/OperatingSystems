@@ -15,7 +15,6 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
-
 #include "synch.h"
 
 // Initialization and cleanup routines

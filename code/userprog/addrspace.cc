@@ -86,11 +86,20 @@ AddrSpace::AddrSpace(OpenFile *executable)
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					numPages, size);
 
+
+
+
+/* make sure there is enough memory left
+    if( pageBitMap.NumClear() > numPages)
+    {
+	SC_Exit();
+    }*/
+
 // first, set up the translation 
     bitMapSem.P();
     int avail = -1;
     for(int i = 0; i < NumPhysPages; i++){
-        if(!pageBitMap.Test(i)){
+        if(!pageBitMap->Test(i)){
             avail = i;
             break;
         }
@@ -98,7 +107,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     //ASSERT(avail != -1);
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
-        pageBitMap.Mark(i+avail);
+        pageBitMap->Mark(i+avail);
         pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
         pageTable[i].physicalPage = i+avail;
         pageTable[i].valid = TRUE;
@@ -109,7 +118,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
                         // pages to be read-only
         //bzero(&(machine->mainMemory[PageSize*(avail+i)]), PageSize );
     }
-    pageBitMap.Print();
+    pageBitMap->Print();
     bitMapSem.V();
  
 // zero out the entire address space, to zero the unitialized data segment 
@@ -144,9 +153,22 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 AddrSpace::~AddrSpace()
 {
-   delete pageTable;
+    delete pageTable;
 }
 
+void AddrSpace::ClearMemory(){
+    int index;
+    bitMapSem.P();	
+    for(int i = 0; i < numPages; i++)
+    {
+	index = pageTable[i].physicalPage;
+	printf("\n\n index = %d, numpages= %d\n\n", index, numPages);	
+	pageBitMap->Clear(index);
+    }
+
+    pageBitMap->Print();
+    bitMapSem.V();
+}
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
 // 	Set the initial values for the user-level register set.
@@ -205,4 +227,14 @@ void AddrSpace::RestoreState()
 {
     machine->pageTable = pageTable;
     machine->pageTableSize = numPages;
+}
+
+int AddrSpace::getNumPages()
+{
+    return numPages;
+}
+
+TranslationEntry * AddrSpace::getPageTable()
+{
+    return pageTable;
 }

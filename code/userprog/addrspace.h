@@ -16,8 +16,7 @@
 #include "copyright.h"
 #include "filesys.h"
 #include "bitmap.h"
-
-static BitMap pageBitMap(NumPhysPages);
+static BitMap *pageBitMap = new BitMap(NumPhysPages);
 #define UserStackSize		1024 	// increase this as necessary!
 
 class AddrSpace {
@@ -32,6 +31,11 @@ class AddrSpace {
 
     void SaveState();			// Save/restore address space-specific
     void RestoreState();		// info on a context switch 
+
+    // New stuff: 
+    int getNumPages();
+    TranslationEntry *getPageTable();
+    void ClearMemory();
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation

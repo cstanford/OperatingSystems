@@ -37,6 +37,8 @@ static void SWrite(char *buffer, int size, int id);
 SpaceId SExec(int filename);
 void execFunc(int filename);
 char* readString(int addr);
+extern BitMap* pageBitMap;
+void exitFunc();
 
 // end FA98
 
@@ -139,7 +141,7 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Exit :
-	currentThread->Finish();
+	exitFunc();
 	break;
 
     case SC_Join :
@@ -313,6 +315,28 @@ void execFunc(int filename)
     machine->Run();
     //ASSERT(false);
 }
+
+void exitFunc()
+{
+    // Check if thread has parent.
+    // if it does, wake up parent.
+
+    TranslationEntry *pageTable;
+    
+    pageTable = currentThread->space->getPageTable();
+    int numPages = currentThread->space->getNumPages();
+
+    currentThread->space->ClearMemory();
+
+    int id = currentThread->getThisThreadID();
+
+    printf("\n Thread %did has exited\n", id);
+
+    
+    currentThread->Finish();    
+
+}
+
 
 // end FA98
 
