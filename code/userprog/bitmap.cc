@@ -170,3 +170,119 @@ BitMap::WriteBack(OpenFile *file)
 {
    file->WriteAt((char *)map, numWords * sizeof(unsigned), 0);
 }
+
+// Main Course //
+// code by Krista Zabicki :) 
+
+// ~~~~~~~~~~~~~~~~~
+// FindFit
+//	Given a size, passes the size to the appropriate fit statement
+//		that is passed in command line
+//
+int BitMap::FindFit(int size)
+{
+	int index = 1; //temporary, delete after impleenting -M
+	switch (index) { // switch to customFitArg
+		case 3:
+			index = WorstFit(size);
+			break;
+		case 2:
+			index = BestFit(size);
+			break;
+		default:
+			index = FirstFit(size);
+	}
+	return index;
+}
+
+// ~~~~~~~~~~~~~~~~~
+// FirstFit
+//	Given a size, finds the first location in the BitMap that can accomodate
+//	that size.
+//
+int BitMap::FirstFit(int size)
+{
+	int index = -1;
+	bool free = true;
+	for(int i = 0; i < numBits; i++) // loop through the bitmap
+	{
+		if (!Test(i)) {					// if i-th bit is not set, found a free block of data
+			free = true;					// set free to true
+			for (int j = i; j < i+size; j++) {	// loop from i to where the block should end
+				if (Test(j)) {				// if a block has a bit set
+					free = false;			// then not a free block to use
+					i = j;					// continue bitmap for-loop from this index
+					break;					// break from this loop
+				}
+			}
+			if (free) {			// if the block is free
+				index = i;			// index is i
+				break;				// break from loop
+			}
+		}
+	}
+	return index;
+}
+
+// ~~~~~~~~~~~~~~~~~
+// BestFit
+//	Given a size, finds the best location in the BitMap that can accomodate
+//	that size.
+// 
+int BitMap::BestFit(int size)
+{
+	int index = -1;
+	int gap = 0;
+	int currentindex = 0;
+	int bestgap = numBits;
+	for(int i = 0; i < numBits; i++)
+	{
+		if (!Test(i)) {
+			gap = 0;
+			currentindex = i;
+			while (!Test(i)) 
+			{
+				gap += 1;
+				i += 1;
+				if (i >= numBits) break;
+			} 
+			if (gap < bestgap && gap >= size) {
+				bestgap = gap;
+				index = currentindex;
+			}
+		}
+	}
+	return index;
+}
+
+// ~~~~~~~~~~~~~~~~~
+// WorstFit
+//	Given a size, finds the worst location in the BitMap that can accomodate
+//	that size.
+// 
+int BitMap::WorstFit(int size)
+{
+	int index = -1;
+	int gap = 0;
+	int currentindex = 0;
+	int worstgap = 0;
+	for(int i = 0; i < numBits; i++)
+	{
+		if (!Test(i)) {
+			gap = 0;
+			currentindex = i;
+			while (!Test(i))
+			{
+				gap += 1;
+				i += 1;
+				if (i >= numBits) break;
+			}
+			if (gap > worstgap && gap >= size){
+				worstgap = gap;
+				index = currentindex;
+			}
+		}
+	}
+	return index;
+}
+// End Main course
