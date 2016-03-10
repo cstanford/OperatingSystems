@@ -45,7 +45,9 @@ Thread::Thread(char* threadName)
     globalThreadIDSem.V();
 
     parentID = NULL;
-    
+    parentThread = NULL;
+    waitingOnChildID = -1;
+    joinSem = new Semaphore("Sleeps on Join", 0);
     
 
 #ifdef USER_PROGRAM
@@ -343,5 +345,21 @@ Thread::RestoreUserState()
 {
     for (int i = 0; i < NumTotalRegs; i++)
 	machine->WriteRegister(i, userRegisters[i]);
+}
+
+void Thread::setParentThread(Thread *parent)
+{
+    parentThread = parent;
+}
+
+Thread * Thread::getParentThread()
+{
+    return parentThread;
+}
+void Thread::setWaitingID(int child){
+    waitingOnChildID = child;
+}
+int Thread::getWaitingID(){
+    return waitingOnChildID;
 }
 #endif

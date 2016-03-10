@@ -36,6 +36,7 @@ static void SWrite(char *buffer, int size, int id);
 
 SpaceId SExec(int filename);
 void execFunc(int filename);
+void joinFunc(int child);
 char* readString(int addr);
 extern BitMap* pageBitMap;
 void exitFunc();
@@ -76,8 +77,7 @@ ExceptionHandler(ExceptionType which)
     int Result;
     int i, j;
     int proof = currentThread->getThisThreadID();
-    printf("----CURRENT-THREAD-%d----\n", proof);
-    printf("----CURRENT-WHICH-%d----\n", which);
+    //printf("----CURRENT-THREAD-%d----\n", proof);
     char *ch = new char [500];
 
     switch ( which )
@@ -92,7 +92,6 @@ ExceptionHandler(ExceptionType which)
     machine->registers[PCReg] = machine->registers[NextPCReg];
     machine->registers[NextPCReg] = machine->registers[NextPCReg] + 4;
 
-    printf("TYPE IS %d\n", type);
     switch ( type )
     {
 
@@ -115,7 +114,6 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Write :
-    printf("----PERFORMED-SC-WRITE----\n");
 	for (j = 0; ; j++) {
 	    if(!machine->ReadMem((arg1+j), 1, &i))
 		j=j-1;
@@ -136,7 +134,6 @@ ExceptionHandler(ExceptionType which)
 
     case SC_Exec :
      
-    printf("----PERFORMED-SC-EXEC----\n");
 	machine->WriteRegister(2, SExec(arg1));
 	break;
 
@@ -145,6 +142,7 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Join :
+	joinFunc(arg1);
 	break;
 
     case SC_Yield :
@@ -281,14 +279,15 @@ static void SWrite(char *buffer, int size, int id)
 SpaceId SExec(int filename)
 {
     char* name = readString(filename);
-    printf("THE FILENAME IS %s\n", name);
+    int id = currentThread->getThisThreadID();
+    printf("Thread %d performed syscall SC_EXEC on file  %s\n", id,  name);
     //Create a new thread to do this stuff
     OpenFile *executable = fileSystem->Open(name);
     AddrSpace *space;
 
     Thread *userProg = new Thread(name);
     
-
+    
     if (executable == NULL) {
 	printf("Unable to open file %s\n", name);
 	return -1;
@@ -302,6 +301,8 @@ SpaceId SExec(int filename)
     //userProg->space->RestoreState();		// load page table register
 
     userProg->Fork(execFunc, (int)name);
+    userProg->setParentID(currentThread->getThisThreadID());
+    userProg->setParentThread(currentThread);
 
     return userProg->getThisThreadID();
 
@@ -318,6 +319,9 @@ void execFunc(int filename)
 
 void exitFunc()
 {
+    if(currentThread->getParentThread() != NULL)
+	if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
+	    currentThread->getParentThread()->joinSem->V();
     // Check if thread has parent.
     // if it does, wake up parent.
 
@@ -331,12 +335,15 @@ void exitFunc()
     int id = currentThread->getThisThreadID();
 
     printf("\n Thread %did has exited\n", id);
-
+    
     
     currentThread->Finish();    
 
 }
-
+void joinFunc(int child){
+    currentThread->setWaitingID(child);
+    currentThread->joinSem->P();
+}
 
 // end FA98
 

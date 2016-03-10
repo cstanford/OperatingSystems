@@ -45,6 +45,8 @@
 #include "addrspace.h"
 #endif
 
+#include "synch.h"
+class Semaphore;
 // CPU register state to be saved on context switch.  
 // The SPARC and MIPS only need 10 registers, but the Snake needs 18.
 // For simplicity, this is just the max over all architectures.
@@ -105,6 +107,13 @@ class Thread {
     int getThisThreadID();
     int getParentID();
     void setParentID(int pID);
+    Thread *getParentThread();
+    void setParentThread(Thread *parent);
+    void setWaitingID(int child);
+    int getWaitingID();
+
+    Semaphore *joinSem;
+    
 
   private:
     // some of the private data for this class is listed above
@@ -121,6 +130,8 @@ class Thread {
 
     int thisThreadID;
     int parentID;
+    int waitingOnChildID;
+    Thread *parentThread;
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 
