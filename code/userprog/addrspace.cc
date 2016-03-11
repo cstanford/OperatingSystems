@@ -69,7 +69,18 @@ AddrSpace::AddrSpace(OpenFile *executable)
     if ((noffH.noffMagic != NOFFMAGIC) && 
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
     	SwapHeader(&noffH);
-    ASSERT(noffH.noffMagic == NOFFMAGIC);
+    
+	if (noffH.noffMagic != NOFFMAGIC) 
+	{
+		printf("Wrong file type. Aborting...");
+		//do other stuff
+		if(currentThread->getParentThread() != NULL)
+			if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
+	    		currentThread->getParentThread()->joinSem->V();
+   
+    currentThread->Finish();    
+	}
+	ASSERT(noffH.noffMagic == NOFFMAGIC);
 
 // how big is address space?
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
@@ -98,14 +109,14 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // first, set up the translation 
     bitMapSem.P();
     int avail = pageBitMap->FindFit(numPages, customFitArg);
-	printf("avail %d\nfit %d", avail, customFitArg);
+	pageBitMap->printFit(customFitArg);
 	if (avail == -1) 
 	{
 		printf("Not enough space. Aborting....");
 		//do other stuff
-		 if(currentThread->getParentThread() != NULL)
-	if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
-	    currentThread->getParentThread()->joinSem->V();
+		if(currentThread->getParentThread() != NULL)
+			if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
+	    		currentThread->getParentThread()->joinSem->V();
    
     currentThread->Finish();    
 	}
@@ -168,7 +179,6 @@ void AddrSpace::ClearMemory(){
     for(int i = 0; i < numPages; i++)
     {
 	index = pageTable[i].physicalPage;
-	printf("\n\n index = %d, numpages= %d\n\n", index, numPages);	
 	pageBitMap->Clear(index);
     }
 

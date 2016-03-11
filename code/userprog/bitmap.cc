@@ -129,7 +129,7 @@ BitMap::NumClear()
 void
 BitMap::Print() 
 {
-    printf("Bitmap set:\n"); 
+    printf("\nBitmap set:\n"); 
     printf("[");
     int count = 0;
     for (int i = 0; i < numBits; i++){
@@ -209,7 +209,7 @@ int BitMap::FirstFit(int size)
 		if (!Test(i)) {					// if i-th bit is not set, found a free block of data
 			free = true;					// set free to true
 			for (int j = i; j < i+size; j++) {	// loop from i to where the block should end
-				if (j < numBits && Test(j)) {				// if a block has a bit set
+				if (j >= numBits || Test(j)) {				// if a block has a bit set
 					free = false;			// then not a free block to use
 					i = j;					// continue bitmap for-loop from this index
 					break;					// break from this loop
