@@ -179,10 +179,10 @@ BitMap::WriteBack(OpenFile *file)
 //	Given a size, passes the size to the appropriate fit statement
 //		that is passed in command line
 //
-int BitMap::FindFit(int size)
+int BitMap::FindFit(int size, int fitArg)
 {
-	int index = 1; //temporary, delete after impleenting -M
-	switch (index) { // switch to customFitArg
+	int index = -1;
+	switch (fitArg) {
 		case 3:
 			index = WorstFit(size);
 			break;
@@ -209,7 +209,7 @@ int BitMap::FirstFit(int size)
 		if (!Test(i)) {					// if i-th bit is not set, found a free block of data
 			free = true;					// set free to true
 			for (int j = i; j < i+size; j++) {	// loop from i to where the block should end
-				if (Test(j)) {				// if a block has a bit set
+				if (j < numBits && Test(j)) {				// if a block has a bit set
 					free = false;			// then not a free block to use
 					i = j;					// continue bitmap for-loop from this index
 					break;					// break from this loop
@@ -234,8 +234,8 @@ int BitMap::BestFit(int size)
 	int index = -1;
 	int gap = 0;
 	int currentindex = 0;
-	int bestgap = numBits;
-	for(int i = 0; i < numBits; i++)
+	int bestgap = numBits+1;
+	for(int i = 0; i < numBits; i++)		// loop through bitmap
 	{
 		if (!Test(i)) {
 			gap = 0;

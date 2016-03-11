@@ -52,7 +52,7 @@ class BitMap {
     void WriteBack(OpenFile *file); 	// write contents to disk
 
     // Main Course
-    int FindFit(int size);
+    int FindFit(int size, int fitArg);
     int FirstFit(int size);
     int BestFit(int size);
     int WorstFit(int size);

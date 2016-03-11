@@ -33,6 +33,8 @@ extern int customParameterArg;
 
 
 //MAIN COURSE//
+extern int customFitArg;
+
 extern int globalThreadID;
 extern Semaphore globalThreadIDSem;
 extern Semaphore bitMapSem;

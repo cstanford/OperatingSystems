@@ -15,6 +15,7 @@ Timer *timer;                           // the hardware timer device,
 int customParameterArg; // argument for custom paramter -A
 
 //MAIN COURSE//
+int customFitArg = 1;
 
 int globalThreadID = 1;
 // Changed initial value to 1 because threads have an initial parentID of 0
@@ -117,6 +118,13 @@ Initialize(int argc, char **argv)
         {
             ASSERT(argc > 1);
             customParameterArg = atoi(*(argv + 1));
+            argCount = 2;
+        }
+		// Main Course - edited by krista
+        else if (!strcmp(*argv, "-M"))
+        {
+            ASSERT(argc > 1);
+            customFitArg = atoi(*(argv + 1));
             argCount = 2;
         }
         else { customParameterArg = NULL; }
