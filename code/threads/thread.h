@@ -113,6 +113,9 @@ class Thread {
     int getWaitingID();
 
     Semaphore *joinSem;
+
+    void setJoinExitStatus(int exitStatus);
+    int getJoinExitStatus();
     
 
   private:
@@ -132,6 +135,7 @@ class Thread {
     int parentID;
     int waitingOnChildID;
     Thread *parentThread;
+    int joinExitStatus;
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 

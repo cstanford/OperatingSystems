@@ -38,7 +38,7 @@ void execFunc(int filename);
 int joinFunc(int child);
 char* readString(int addr);
 extern BitMap* pageBitMap;
-void exitFunc();
+void exitFunc(int exitStatus);
 
 
 // end FA98
@@ -138,16 +138,17 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Exit :
-	exitFunc();
+	exitFunc(arg1);
 	break;
 
     case SC_Join :
-	joinFunc(arg1);
-//	machine->WriteRegister(2, JoinFunc(arg1));
+	printf("\n--Thread %d PERFORMED SC_JOIN--\n", currentThread->getThisThreadID());
+	machine->WriteRegister(2, joinFunc(arg1));
+	printf("EXIT STATUS IS %d\n", machine->ReadRegister(2));
 	break;
 
     case SC_Yield :
-    printf("----PERFORMED-SC-YIELD----\n");
+    printf("\n--Thread %d PERFORMED SC_YIELD--\n", currentThread->getThisThreadID());
 	currentThread->Yield();
 	break;
 
@@ -293,8 +294,9 @@ SpaceId SExec(int filename)
     }
     space = new AddrSpace(executable);    
     userProg->space = space;
-
+    pcbSem.P();
     pcb->append(userProg);
+    pcbSem.V();
     delete executable;			// close file
 
     userProg->Fork(execFunc, (int)name);
@@ -309,16 +311,19 @@ void execFunc(int filename)
 {
     currentThread->space->InitRegisters();
     currentThread->space->RestoreState();		// load page table register
-    printf("CURRENTLY RUNNING THREAD %d", currentThread->getThisThreadID());
     machine->Run();
     //ASSERT(false);
 }
 
-void exitFunc()
+void exitFunc(int exitStatus)
 {
-    if(currentThread->getParentThread() != NULL)
-	if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
+    printf("\n--Thread %d PERFORMED SC_EXIT--\n", currentThread->getThisThreadID());
+    if(currentThread->getParentThread() != NULL){
+	if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID()){
+	    currentThread->getParentThread()->setJoinExitStatus(exitStatus);
 	    currentThread->getParentThread()->joinSem->V();
+	}
+    }
     // Check if thread has parent.
     // if it does, wake up parent.
 
@@ -331,7 +336,6 @@ void exitFunc()
 
     int id = currentThread->getThisThreadID();
 
-    printf("\n Thread %did has exited\n", id);
 
     pcb->remove(currentThread);
     
@@ -339,12 +343,16 @@ void exitFunc()
 
 }
 int joinFunc(int child){
-
+    pcbSem.P();
     if(pcb->isValidID(child)){
 	currentThread->setWaitingID(child);
+	pcbSem.V();
 	currentThread->joinSem->P();
-	return 0;//return the exiting chid's exec value
-    } else return -1;
+	return currentThread->getJoinExitStatus();//return the exiting chid's exec value
+    } else {
+	pcbSem.V();
+	return -1;
+    }
 }
 
 // end FA98

@@ -23,13 +23,13 @@ void execFunc2(int null)
 {
     currentThread->space->InitRegisters();
     currentThread->space->RestoreState();		// load page table register
-    printf("CURRENTLY RUNNING THREAD %d", currentThread->getThisThreadID());
     machine->Run();
     ASSERT(false);
 }
 void
 StartProcess(char *filename)
-{
+{   
+    pageBitMap->printFit(customFitArg);
     Thread *main = new Thread("Main thread");
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
@@ -38,12 +38,16 @@ StartProcess(char *filename)
 	printf("Unable to open file %s\n", filename);
 	return;
     }
+
+    printf("\nLoading Process %d with path %s\n", currentThread->getThisThreadID(), filename);
+    
     space = new AddrSpace(executable);    
     main->space = space;
 
     delete executable;			// close file
     
     pcb->append(main);
+
 
     main->Fork(execFunc2, NULL);
 					// the address space exits

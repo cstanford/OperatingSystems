@@ -39,10 +39,15 @@ void pcbList::remove(Thread* elem){
 }
 bool pcbList::isValidID(int id){
     pcbList* temp = this;
-    for(; temp->next != NULL; temp = temp->next){
-	if(temp->id == id)
+    printf("LOOKING FOR- ID %d\n", id);
+    for(; temp != NULL; temp = temp->next){
+	printf("FOUND - ID %d\n", temp->id);
+	if(temp->id == id){
+	    printf("FOUND THE CORRECT ID!\n");
 	    return true;
+	}
     }
+    printf("ID WAS NOT IN LIST \n");
     return false; // Reached the end of the list and haven't found id
 }
 

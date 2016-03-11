@@ -70,17 +70,19 @@ AddrSpace::AddrSpace(OpenFile *executable)
 		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
     	SwapHeader(&noffH);
     
-	if (noffH.noffMagic != NOFFMAGIC) 
+    if (noffH.noffMagic != NOFFMAGIC) 
+    {
+	printf("Wrong file type. Unable to load file.\n\n");
+	//do other stuff
+	if(currentThread->getParentThread() != NULL)
 	{
-		printf("Wrong file type. Aborting...");
-		//do other stuff
-		if(currentThread->getParentThread() != NULL)
-			if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
-	    		currentThread->getParentThread()->joinSem->V();
-   
-    currentThread->Finish();    
+	    if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
+		currentThread->getParentThread()->joinSem->V();
 	}
-	ASSERT(noffH.noffMagic == NOFFMAGIC);
+
+	currentThread->Finish();    
+    }
+    ASSERT(noffH.noffMagic == NOFFMAGIC);
 
 // how big is address space?
     size = noffH.code.size + noffH.initData.size + noffH.uninitData.size 
@@ -98,29 +100,24 @@ AddrSpace::AddrSpace(OpenFile *executable)
 					numPages, size);
 
 
-
-
-/* make sure there is enough memory left
-    if( pageBitMap.NumClear() > numPages)
-    {
-	SC_Exit();
-    }*/
-
 // first, set up the translation 
     bitMapSem.P();
     int avail = pageBitMap->FindFit(numPages, customFitArg);
-	pageBitMap->printFit(customFitArg);
-	if (avail == -1) 
-	{
-		printf("Not enough space. Aborting....");
-		//do other stuff
-		if(currentThread->getParentThread() != NULL)
-			if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
-	    		currentThread->getParentThread()->joinSem->V();
-   
-    currentThread->Finish();    
-	}
-    //ASSERT(avail != -1);
+    if (avail == -1) 
+    {
+	printf("Not enough memory;\nPages full.\n\n");
+	//do other stuff
+	if(currentThread->getParentThread() != NULL)
+	    if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID())
+		currentThread->getParentThread()->joinSem->V(); 
+	currentThread->Finish();    
+    }
+
+    printf("\nPage availability before adding the process:\n");
+    pageBitMap->Print();
+    printf("Num pages: %d\n", numPages);
+    printf("Fits at index: %d\n", avail);
+
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
         pageBitMap->Mark(i+avail);
@@ -134,6 +131,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
                         // pages to be read-only
         //bzero(&(machine->mainMemory[PageSize*(avail+i)]), PageSize );
     }
+    printf("\nPage availability after adding the process:\n");
     pageBitMap->Print();
 
     bitMapSem.V();
@@ -176,12 +174,14 @@ AddrSpace::~AddrSpace()
 void AddrSpace::ClearMemory(){
     int index;
     bitMapSem.P();	
+    printf("\nPage availability before exiting the process:\n");
+    pageBitMap->Print();
     for(int i = 0; i < numPages; i++)
     {
 	index = pageTable[i].physicalPage;
 	pageBitMap->Clear(index);
     }
-
+    printf("\nPage availability after exiting the process:\n");
     pageBitMap->Print();
     bitMapSem.V();
 }

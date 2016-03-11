@@ -2,7 +2,11 @@
 int
 main()
 {
-    Write("KRISTA YO\n", 10, 1);
-	Join(500);
+    //Write("\nForkHalt\n", 10, 1);
+    int i = 0;
+    for(i = 0; i < 10; i++){
+	Join(Exec("../test/sort"));
+    }
+    Exit(0);
 
 }

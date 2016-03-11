@@ -15,9 +15,8 @@
 int
 main()
 {
-    Write("KRISTA AY\n", 10, 1);
-    Yield();
-    Write("HA STILL ON IT BABY\n", 20, 1);
-    Exit(1);
+    Write("HALTtt AY\n", 10, 1);
+    
+   // Exit();
     /* not reached */
 }

@@ -48,6 +48,7 @@ Thread::Thread(char* threadName)
     parentThread = NULL;
     waitingOnChildID = -1;
     joinSem = new Semaphore("Sleeps on Join", 0);
+    joinExitStatus = NULL;
     
 
 #ifdef USER_PROGRAM
@@ -361,5 +362,15 @@ void Thread::setWaitingID(int child){
 }
 int Thread::getWaitingID(){
     return waitingOnChildID;
+}
+
+void Thread::setJoinExitStatus(int exitStatus)
+{
+    joinExitStatus = exitStatus;
+}
+
+int Thread::getJoinExitStatus()
+{
+    return joinExitStatus;
 }
 #endif

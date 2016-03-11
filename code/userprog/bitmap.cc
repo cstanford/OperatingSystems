@@ -129,7 +129,6 @@ BitMap::NumClear()
 void
 BitMap::Print() 
 {
-    printf("\nBitmap set:\n"); 
     printf("[");
     int count = 0;
     for (int i = 0; i < numBits; i++){
@@ -289,11 +288,11 @@ int BitMap::WorstFit(int size)
 void BitMap::printFit(int fitNum)
 {
     if (fitNum == 3)
-	printf("Selected: Worst Fit\n");
+	printf("\nSelected: Worst Fit\n");
     else if (fitNum == 2)
-	printf("Selected: Best Fit\n");
+	printf("\nSelected: Best Fit\n");
     else
-	printf("Selected: First Fit\n");
+	printf("\nSelected: First Fit\n");
  
 }
 // End Main course
