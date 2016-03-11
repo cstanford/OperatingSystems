@@ -15,6 +15,7 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
+#include "pcbList.h"
 #include "synch.h"
 
 // Initialization and cleanup routines
@@ -33,11 +34,12 @@ extern int customParameterArg;
 
 
 //MAIN COURSE//
+struct pcbList;
 extern int customFitArg;
-
 extern int globalThreadID;
 extern Semaphore globalThreadIDSem;
 extern Semaphore bitMapSem;
+extern  pcbList* pcb;
 
 #ifdef USER_PROGRAM
 #include "machine.h"

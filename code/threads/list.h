@@ -53,7 +53,6 @@ class List {
 					// on the list
     bool IsEmpty();		// is the list empty? 
 
-    ListElement * getFirstElement();
     
 
     // Routines to put/get items on/off list in order (sorted by key)

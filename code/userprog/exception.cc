@@ -28,10 +28,8 @@
 #include "addrspace.h"   // FA98
 #include "synch.h"
 #include "sysdep.h"   // FA98
-#include "list.h"
-
 // begin FA98
-static Semaphore consoleSem("Protects read/write", 1);
+static Semaphore pcbSem("Don't touch my pcbList yo", 1);
 static int SRead(int addr, int size, int id);
 static void SWrite(char *buffer, int size, int id);
 
@@ -42,7 +40,6 @@ char* readString(int addr);
 extern BitMap* pageBitMap;
 void exitFunc();
 
-List pcbList;	//list to keep track of parent-children processessss
 
 // end FA98
 
@@ -271,9 +268,7 @@ static void SWrite(char *buffer, int size, int id)
 {
     //write to terminal, try writting your own code using console class.
     if (id == 1){
-        consoleSem.P();
         printf("%s", buffer);
-        consoleSem.V();
     }
     //write to a unix file, later you need change to nachos file system.
     if (id >= 2)
@@ -299,12 +294,9 @@ SpaceId SExec(int filename)
     space = new AddrSpace(executable);    
     userProg->space = space;
 
+    pcb->append(userProg);
     delete executable;			// close file
 
-    //userProg->space->InitRegisters();		// set the initial register values
-    //userProg->space->RestoreState();		// load page table register
-
-//	pcbList.append
     userProg->Fork(execFunc, (int)name);
     userProg->setParentID(currentThread->getThisThreadID());
     userProg->setParentThread(currentThread);
@@ -340,15 +332,19 @@ void exitFunc()
     int id = currentThread->getThisThreadID();
 
     printf("\n Thread %did has exited\n", id);
-    
+
+    pcb->remove(currentThread);
     
     currentThread->Finish();    
 
 }
 int joinFunc(int child){
-    currentThread->setWaitingID(child);
-    currentThread->joinSem->P();
-	return 0;
+
+    if(pcb->isValidID(child)){
+	currentThread->setWaitingID(child);
+	currentThread->joinSem->P();
+	return 0;//return the exiting chid's exec value
+    } else return -1;
 }
 
 // end FA98

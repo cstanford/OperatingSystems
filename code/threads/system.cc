@@ -22,6 +22,8 @@ int globalThreadID = 1;
 
 Semaphore globalThreadIDSem("threadIDSem", 1);
 Semaphore bitMapSem("bitMapSem", 1);
+pcbList* pcb = new pcbList();
+
 //END MAIN COURSE//
 
 #ifdef FILESYS_NEEDED

@@ -42,6 +42,8 @@ StartProcess(char *filename)
     main->space = space;
 
     delete executable;			// close file
+    
+    pcb->append(main);
 
     main->Fork(execFunc2, NULL);
 					// the address space exits
