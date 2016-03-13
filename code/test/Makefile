@@ -35,7 +35,7 @@ CPP = gcc -E
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt shell matmult sort forkHalt fourExecs
+all: halt shell matmult sort forkHalt fourExecs sortLoop
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.c > strt.s
@@ -77,4 +77,10 @@ fourExecs.o: fourExecs.c
 fourExecs: fourExecs.o start.o
 	$(LD) $(LDFLAGS) start.o fourExecs.o -o fourExecs.coff
 	../bin/coff2noff fourExecs.coff fourExecs 
+
+sortLoop.o: sortLoop.c
+	$(CC) $(CFLAGS) -c sortLoop.c
+sortLoop: sortLoop.o start.o
+	$(LD) $(LDFLAGS) start.o sortLoop.o -o sortLoop.coff
+	../bin/coff2noff sortLoop.coff sortLoop 
 
