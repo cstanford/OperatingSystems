@@ -4,9 +4,7 @@ main()
 {
     //Write("\nForkHalt\n", 10, 1);
     int i = 0;
-    for(i = 0; i < 10; i++){
-	Join(Exec("../test/sort"));
-    }
+    Exec("../test/Halt");
     Exit(0);
 
 }
