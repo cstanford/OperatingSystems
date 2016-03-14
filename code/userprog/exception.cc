@@ -28,6 +28,7 @@
 #include "addrspace.h"   // FA98
 #include "synch.h"
 #include "sysdep.h"   // FA98
+#include "noff.h"
 // begin FA98
 static Semaphore pcbSem("Don't touch my pcbList yo", 1);
 static int SRead(int addr, int size, int id);
@@ -40,6 +41,20 @@ char* readString(int addr);
 extern BitMap* pageBitMap;
 void exitFunc(int exitStatus);
 
+static void 
+SwapHeader (NoffHeader *noffH)
+{
+	noffH->noffMagic = WordToHost(noffH->noffMagic);
+	noffH->code.size = WordToHost(noffH->code.size);
+	noffH->code.virtualAddr = WordToHost(noffH->code.virtualAddr);
+	noffH->code.inFileAddr = WordToHost(noffH->code.inFileAddr);
+	noffH->initData.size = WordToHost(noffH->initData.size);
+	noffH->initData.virtualAddr = WordToHost(noffH->initData.virtualAddr);
+	noffH->initData.inFileAddr = WordToHost(noffH->initData.inFileAddr);
+	noffH->uninitData.size = WordToHost(noffH->uninitData.size);
+	noffH->uninitData.virtualAddr = WordToHost(noffH->uninitData.virtualAddr);
+	noffH->uninitData.inFileAddr = WordToHost(noffH->uninitData.inFileAddr);
+}
 
 // end FA98
 
@@ -144,7 +159,6 @@ ExceptionHandler(ExceptionType which)
     case SC_Join :
 	printf("\n--Thread %d PERFORMED SC_JOIN--\n", currentThread->getThisThreadID());
 	machine->WriteRegister(2, joinFunc(arg1));
-	printf("EXIT STATUS IS %d\n", machine->ReadRegister(2));
 	break;
 
     case SC_Yield :
@@ -292,6 +306,20 @@ SpaceId SExec(int filename)
 	printf("Unable to open file %s\n", name);
 	return -1;
     }
+    NoffHeader noffH;
+    unsigned int i, size;
+
+    executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
+    if ((noffH.noffMagic != NOFFMAGIC) && 
+		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
+    	SwapHeader(&noffH);
+    
+    if (noffH.noffMagic != NOFFMAGIC) 
+    {
+	printf("Wrong file type. Unable to load file.\n\n");
+	delete executable;			// close file
+	return -1;
+    }
     space = new AddrSpace(executable);    
     userProg->space = space;
     pcbSem.P();
@@ -318,14 +346,6 @@ void execFunc(int filename)
 void exitFunc(int exitStatus)
 {
     printf("\n--Thread %d PERFORMED SC_EXIT--\n", currentThread->getThisThreadID());
-    if(currentThread->getParentThread() != NULL){
-	if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID()){
-	    currentThread->getParentThread()->setJoinExitStatus(exitStatus);
-	    currentThread->getParentThread()->joinSem->V();
-	}
-    }
-    // Check if thread has parent.
-    // if it does, wake up parent.
 
     TranslationEntry *pageTable;
     
@@ -335,10 +355,19 @@ void exitFunc(int exitStatus)
     currentThread->space->ClearMemory();
 
     int id = currentThread->getThisThreadID();
+    if(currentThread->getParentThread() != NULL){
+	if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID()){
+	    currentThread->getParentThread()->setJoinExitStatus(exitStatus);
+	    currentThread->getParentThread()->joinSem->V();
+	}
+    }
+    // Check if thread has parent.
+    // if it does, wake up parent.
 
-
+    pcbSem.P();
     pcb->remove(currentThread);
-    
+    pcbSem.V();
+    printf("EXIT STATUS %d\n", exitStatus);
     currentThread->Finish();    
 
 }
