@@ -352,7 +352,7 @@ exception.o: ../userprog/exception.cc /usr/include/stdio.h \
   ../threads/scheduler.h ../machine/interrupt.h ../threads/list.h \
   ../machine/stats.h ../machine/timer.h ../threads/pcbList.h \
   ../filesys/filesys.h ../userprog/syscall.h ../userprog/addrspace.h \
-  ../threads/synch.h ../machine/sysdep.h
+  ../threads/synch.h ../machine/sysdep.h ../bin/noff.h
 progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \

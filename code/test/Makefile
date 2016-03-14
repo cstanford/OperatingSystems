@@ -35,7 +35,7 @@ CPP = gcc -E
 INCDIR =-I../userprog -I../threads
 CFLAGS = -G 0 -c $(INCDIR)
 
-all: halt shell matmult sort forkHalt fourExecs sortLoop badID
+all: halt shell matmult sort forkHalt fourExecs sortLoop badID fib execAndJoinFib
 
 start.o: start.s ../userprog/syscall.h
 	$(CPP) $(CPPFLAGS) start.c > strt.s
@@ -89,4 +89,16 @@ badID.o: badID.c
 badID: badID.o start.o
 	$(LD) $(LDFLAGS) start.o badID.o -o badID.coff
 	../bin/coff2noff badID.coff badID 
+
+fib.o: fib.c
+	$(CC) $(CFLAGS) -c fib.c
+fib: fib.o start.o
+	$(LD) $(LDFLAGS) start.o fib.o -o fib.coff
+	../bin/coff2noff fib.coff fib 
+
+execAndJoinFib.o: execAndJoinFib.c
+	$(CC) $(CFLAGS) -c execAndJoinFib.c
+execAndJoinFib: execAndJoinFib.o start.o
+	$(LD) $(LDFLAGS) start.o execAndJoinFib.o -o execAndJoinFib.coff
+	../bin/coff2noff execAndJoinFib.coff execAndJoinFib 
 

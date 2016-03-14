@@ -168,6 +168,7 @@ ExceptionHandler(ExceptionType which)
 
     default :
 	//Unprogrammed system calls end up here
+	printf("\n--Thread %d PERFORMED AN UNPROGRAMMED SYSCALL\n", currentThread->getThisThreadID());
 	break;
     }         
     break;

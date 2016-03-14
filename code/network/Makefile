@@ -375,7 +375,8 @@ exception.o: ../userprog/exception.cc /usr/include/stdio.h \
   ../filesys/filesys.h ../filesys/synchdisk.h ../machine/disk.h \
   ../threads/synch.h ../network/post.h ../threads/copyright.h \
   ../machine/network.h ../threads/synchlist.h ../userprog/syscall.h \
-  ../userprog/addrspace.h ../threads/synch.h ../machine/sysdep.h
+  ../userprog/addrspace.h ../threads/synch.h ../machine/sysdep.h \
+  ../bin/noff.h
 progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
   ../threads/system.h ../threads/copyright.h ../threads/utility.h \
   ../threads/bool.h ../machine/sysdep.h ../threads/copyright.h \
