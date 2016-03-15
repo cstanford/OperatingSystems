@@ -91,8 +91,6 @@ ExceptionHandler(ExceptionType which)
     int arg3 = machine->ReadRegister(6);
     int Result;
     int i, j;
-    int proof = currentThread->getThisThreadID();
-    //printf("----CURRENT-THREAD-%d----\n", proof);
     char *ch = new char [500];
 
     switch ( which )
@@ -112,7 +110,7 @@ ExceptionHandler(ExceptionType which)
 
     case SC_Halt :
 	DEBUG('t', "Shutdown, initiated by user program.\n");
-    printf("HALTING\n");
+	printf("HALTING\n");
 	interrupt->Halt();
 	break;
 
@@ -157,12 +155,11 @@ ExceptionHandler(ExceptionType which)
 	break;
 
     case SC_Join :
-	printf("\n--Thread %d PERFORMED SC_JOIN--\n", currentThread->getThisThreadID());
 	machine->WriteRegister(2, joinFunc(arg1));
 	break;
 
     case SC_Yield :
-    printf("\n--Thread %d PERFORMED SC_YIELD--\n", currentThread->getThisThreadID());
+	printf("\n--Thread %d PERFORMED SC_YIELD--\n", currentThread->getThisThreadID());
 	currentThread->Yield();
 	break;
 
@@ -186,6 +183,8 @@ ExceptionHandler(ExceptionType which)
 	//SExit(1);
 	break;
     case AddressErrorException :
+	printf("Pointer out of bounds. Terminating thread %d.\n", currentThread->getThisThreadID());
+	exitFunc(-1);	
 	puts ("AddressErrorException");
 	if (currentThread->getName() == "main")
 	ASSERT(FALSE);  //Not the way of handling an exception.
@@ -198,6 +197,8 @@ ExceptionHandler(ExceptionType which)
 	//SExit(1);
 	break;
     case IllegalInstrException :
+	printf("Pointer out of bounds. Terminating thread %d.\n", currentThread->getThisThreadID());
+	exitFunc(-1);	
 	puts ("IllegalInstrException");
 	if (currentThread->getName() == "main")
 	ASSERT(FALSE);  //Not the way of handling an exception.
@@ -373,6 +374,7 @@ void exitFunc(int exitStatus)
 
 }
 int joinFunc(int child){
+    printf("\n--Thread %d PERFORMED SC_JOIN--\n", currentThread->getThisThreadID());
     pcbSem.P();
     if(pcb->isValidID(child)){
 	currentThread->setWaitingID(child);
