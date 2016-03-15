@@ -197,7 +197,6 @@ ExceptionHandler(ExceptionType which)
 	//SExit(1);
 	break;
     case IllegalInstrException :
-	printf("Pointer out of bounds. Terminating thread %d.\n", currentThread->getThisThreadID());
 	exitFunc(-1);	
 	puts ("IllegalInstrException");
 	if (currentThread->getName() == "main")
