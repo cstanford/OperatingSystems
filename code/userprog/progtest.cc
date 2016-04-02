@@ -42,6 +42,7 @@ StartProcess(char *filename)
     printf("\nLoading Process %d with path %s\n", currentThread->getThisThreadID(), filename);
     
     space = new AddrSpace(executable);    
+    space->SetFileName(filename);
     main->space = space;
 
     delete executable;			// close file

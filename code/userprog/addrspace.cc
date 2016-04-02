@@ -120,7 +120,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
-        pageBitMap->Mark(i+avail);
+        //pageBitMap->Mark(i+avail);
         pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
         pageTable[i].physicalPage = i+avail;
         pageTable[i].valid = FALSE;
@@ -256,22 +256,27 @@ TranslationEntry * AddrSpace::getPageTable()
 }
 
 void AddrSpace::SetFileName(char* filename){
+    printf("Supposed to be %s\n", filename);
     this->filename = filename;
 }
 char* AddrSpace::GetFileName(){
     return filename;
 }
-void AddrSpace::ResolvePageFault(int pageToLoad, OpenFile *executable){ 
+void AddrSpace::ResolvePageFault(int pageToLoad){ 
     //Decide on which frame to load it into and set it in pageTable->physicalPage
     int avail = pageTable[pageToLoad].physicalPage;
 
+/*
     //Zero out the memory we will write to
     bzero( &(machine->mainMemory[avail * PageSize]), PageSize );
+    printf("Filename is %s\n", filename);
+    OpenFile* executable = fileSystem->Open(filename); 
+    ASSERT (executable);
 
     //Write to memory
     executable->ReadAt(&(machine->mainMemory[avail*PageSize]),
 			PageSize, pageToLoad*PageSize);
-
+*/
     //Set the valid bit to troo
     pageTable[pageToLoad].valid = TRUE;
 

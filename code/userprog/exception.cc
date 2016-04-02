@@ -224,8 +224,8 @@ ExceptionHandler(ExceptionType which)
     //Get the name of the executable
     name = currentThread->space->GetFileName();
     //Read this in from the executable
-    executable = fileSystem->Open(name);
-    currentThread->space->ResolvePageFault(pageToLoad, executable);
+    //executable = fileSystem->Open(name);
+    currentThread->space->ResolvePageFault(pageToLoad);
     break;
 
 	default :
