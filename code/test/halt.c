@@ -17,6 +17,6 @@ main()
 {
     Write("HALTtt AY\n", 10, 1);
     
-   // Exit();
+    Exit(0);
     /* not reached */
 }
