@@ -254,3 +254,29 @@ TranslationEntry * AddrSpace::getPageTable()
 {
     return pageTable;
 }
+
+void AddrSpace::SetFileName(char* filename){
+    this->filename = filename;
+}
+char* AddrSpace::GetFileName(){
+    return filename;
+}
+void AddrSpace::ResolvePageFault(int pageToLoad, OpenFile *executable){ 
+    //Decide on which frame to load it into and set it in pageTable->physicalPage
+    int avail = pageTable[pageToLoad].physicalPage;
+
+    //Zero out the memory we will write to
+    bzero( &(machine->mainMemory[avail * PageSize]), PageSize );
+
+    //Write to memory
+    executable->ReadAt(&(machine->mainMemory[avail*PageSize]),
+			PageSize, pageToLoad*PageSize);
+
+    //Set the valid bit to troo
+    pageTable[pageToLoad].valid = TRUE;
+
+    //Claim the resource
+    bitMapSem.P();
+    pageBitMap->Mark(avail);
+    bitMapSem.V();
+}

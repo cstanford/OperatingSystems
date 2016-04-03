@@ -84,6 +84,13 @@ SwapHeader (NoffHeader *noffH)
 void
 ExceptionHandler(ExceptionType which)
 {
+    //All stuff for handling page faults
+    int badAddr;
+    int pageToLoad;
+    char* name;
+    OpenFile *executable;
+
+    //Regular exception handling variables
     int type = machine->ReadRegister(2);
 
     int arg1 = machine->ReadRegister(4);
@@ -210,11 +217,15 @@ ExceptionHandler(ExceptionType which)
 	//SExit(1);
 	break;
     case PageFaultException:
-    printf("GOT SOME PAGE FAULT EXCEPTION YO\n");
-    //Load some memory and stuff
     //Failing virtual address read is in register 39
+    badAddr = machine->ReadRegister(39);
     //Virtual page table is reg(39)/PageSize
+    pageToLoad = badAddr/PageSize; 
+    //Get the name of the executable
+    name = currentThread->space->GetFileName();
     //Read this in from the executable
+    executable = fileSystem->Open(name);
+    currentThread->space->ResolvePageFault(pageToLoad, executable);
     break;
 
 	default :
@@ -329,6 +340,7 @@ SpaceId SExec(int filename)
 	return -1;
     }
     space = new AddrSpace(executable);    
+    space->SetFileName((char*)filename);
     userProg->space = space;
     pcbSem.P();
     pcb->append(userProg);

@@ -37,11 +37,16 @@ class AddrSpace {
     TranslationEntry *getPageTable();
     void ClearMemory();
 
+    void SetFileName(char* filename);
+    char* GetFileName();
+    void ResolvePageFault(int pageToLoad, OpenFile *executable);
+
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
+    char* filename;
 };
 
 #endif // ADDRSPACE_H
