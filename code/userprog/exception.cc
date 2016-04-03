@@ -209,6 +209,10 @@ ExceptionHandler(ExceptionType which)
 	ASSERT(FALSE);  //Not the way of handling an exception.
 	//SExit(1);
 	break;
+    case PageFaultException:
+    printf("GOT SOME PAGE FAULT EXCEPTION YO\n");
+    //Load some memory and stuff
+    break;
 
 	default :
 	//      printf("Unexpected user mode exception %d %d\n", which, type);
