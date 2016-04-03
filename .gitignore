@@ -31,3 +31,16 @@ Makefile
 coff2noff
 vm
 *.s
+
+#test executables
+code/test/badID
+code/test/execAndJoinFib
+code/test/fib
+code/test/forkHalt
+code/test/fourExecs
+code/test/halt
+code/test/matmult
+code/test/shell
+code/test/sort
+code/test/sortLoop
+
