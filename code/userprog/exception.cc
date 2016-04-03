@@ -212,6 +212,9 @@ ExceptionHandler(ExceptionType which)
     case PageFaultException:
     printf("GOT SOME PAGE FAULT EXCEPTION YO\n");
     //Load some memory and stuff
+    //Failing virtual address read is in register 39
+    //Virtual page table is reg(39)/PageSize
+    //Read this in from the executable
     break;
 
 	default :
