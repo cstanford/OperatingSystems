@@ -39,7 +39,7 @@ class AddrSpace {
 
     void SetFileName(char* filename);
     char* GetFileName();
-    void ResolvePageFault(int pageToLoad);
+    void ResolvePageFault(int badVAddr);
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation

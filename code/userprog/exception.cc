@@ -219,13 +219,11 @@ ExceptionHandler(ExceptionType which)
     case PageFaultException:
     //Failing virtual address read is in register 39
     badAddr = machine->ReadRegister(39);
-    //Virtual page table is reg(39)/PageSize
-    pageToLoad = badAddr/PageSize; 
     //Get the name of the executable
     name = currentThread->space->GetFileName();
     //Read this in from the executable
     //executable = fileSystem->Open(name);
-    currentThread->space->ResolvePageFault(pageToLoad);
+    currentThread->space->ResolvePageFault(badAddr);
     break;
 
 	default :
@@ -339,6 +337,7 @@ SpaceId SExec(int filename)
 	delete executable;			// close file
 	return -1;
     }
+
     space = new AddrSpace(executable);    
     space->SetFileName((char*)filename);
     userProg->space = space;

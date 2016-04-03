@@ -135,7 +135,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageBitMap->Print();
 
     bitMapSem.V();
- 
+/* 
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
     //bzero(machine->mainMemory, size);
@@ -158,7 +158,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
         executable->ReadAt(&(machine->mainMemory[physAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
-
+//*/
 }
 
 //----------------------------------------------------------------------
@@ -262,26 +262,28 @@ void AddrSpace::SetFileName(char* filename){
 char* AddrSpace::GetFileName(){
     return filename;
 }
-void AddrSpace::ResolvePageFault(int pageToLoad){ 
+void AddrSpace::ResolvePageFault(int badVAddr){ 
+    int pageToLoad = badVAddr/PageSize;
     //Decide on which frame to load it into and set it in pageTable->physicalPage
     int avail = pageTable[pageToLoad].physicalPage;
+    int physAddr = pageTable[pageToLoad].physicalPage*PageSize + (badVAddr%PageSize);
 
-/*
     //Zero out the memory we will write to
     bzero( &(machine->mainMemory[avail * PageSize]), PageSize );
     printf("Filename is %s\n", filename);
     OpenFile* executable = fileSystem->Open(filename); 
-    ASSERT (executable);
+    //ASSERT (executable);
 
     //Write to memory
-    executable->ReadAt(&(machine->mainMemory[avail*PageSize]),
+    int amtRead = executable->ReadAt(&(machine->mainMemory[avail * PageSize]),
 			PageSize, pageToLoad*PageSize);
-*/
-    //Set the valid bit to troo
-    pageTable[pageToLoad].valid = TRUE;
+    delete executable;
+    printf("We wrote %d bytes to memory.\n", amtRead);
 
     //Claim the resource
     bitMapSem.P();
+    //Set the valid bit to troo
+    pageTable[pageToLoad].valid = TRUE;
     pageBitMap->Mark(avail);
     bitMapSem.V();
 }
