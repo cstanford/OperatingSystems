@@ -143,6 +143,11 @@ AddrSpace::AddrSpace(OpenFile *executable)
     globalThreadIDSem.V();
     fileSystem->Create(swapFileName, size);
     swapFile = fileSystem->Open(swapFileName);
+
+    for(int i = 0; i < size; i++)
+    {
+	swapFile->WriteAt("0",1,i);
+    }
 /* 
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
@@ -284,14 +289,13 @@ void AddrSpace::ResolvePageFault(int badVAddr){
 }
 
 //Maybe unneeded?
-void AddrSpace::LoadPage(int frameNum)
-{
-    switch(placementTable[frameNum])
+void AddrSpace::LoadPage(int pageNum){
+    switch(placementTable[pageNum])
     {
 	case LOADBINARY:
 	{
         //Load from the executable
-        LoadFromExec(frameNum);
+        LoadFromExec(pageNum);
 	    break;
 	}
 
