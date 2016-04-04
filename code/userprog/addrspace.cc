@@ -263,22 +263,42 @@ char* AddrSpace::GetFileName(){
     return filename;
 }
 void AddrSpace::ResolvePageFault(int badVAddr){ 
-    int pageToLoad = badVAddr/PageSize;
+    int pageToLoad = (badVAddr)/PageSize;
+    OpenFile* executable = fileSystem->Open(filename); 
+
+    //Fix this shit and make it actually find a good page
+    static int tempAvail = 0;
+    pageTable[pageToLoad].physicalPage = tempAvail++;
+
+    NoffHeader noffH;
+    unsigned int i, size;
+
+    executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
+    if ((noffH.noffMagic != NOFFMAGIC) && 
+		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
+    	SwapHeader(&noffH);    
+
     //Decide on which frame to load it into and set it in pageTable->physicalPage
     int avail = pageTable[pageToLoad].physicalPage;
-    int physAddr = pageTable[pageToLoad].physicalPage*PageSize + (badVAddr%PageSize);
 
-    //Zero out the memory we will write to
-    bzero( &(machine->mainMemory[avail * PageSize]), PageSize );
-    printf("Filename is %s\n", filename);
-    OpenFile* executable = fileSystem->Open(filename); 
-    //ASSERT (executable);
+    for(int i = pageToLoad*PageSize, j=0; i < (pageToLoad+1)*PageSize; i++, j++){
+        int physAddr = avail*PageSize + j;
 
-    //Write to memory
-    int amtRead = executable->ReadAt(&(machine->mainMemory[avail * PageSize]),
-			PageSize, pageToLoad*PageSize);
+        //Memory in code segment
+        if(i >= noffH.code.virtualAddr && i < noffH.code.virtualAddr + noffH.code.size){
+            executable->ReadAt(&(machine->mainMemory[physAddr]),
+                1, noffH.code.inFileAddr + i - noffH.code.virtualAddr);
+        }
+        //Memory in init segment
+        else if(i >= noffH.initData.virtualAddr && i < noffH.initData.virtualAddr + noffH.initData.size){
+            executable->ReadAt(&(machine->mainMemory[physAddr]),
+                1, noffH.initData.inFileAddr + i - noffH.initData.virtualAddr);
+        }
+        else {
+            machine->mainMemory[physAddr] = 0;
+        }
+    }
     delete executable;
-    printf("We wrote %d bytes to memory.\n", amtRead);
 
     //Claim the resource
     bitMapSem.P();

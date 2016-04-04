@@ -339,7 +339,7 @@ SpaceId SExec(int filename)
     }
 
     space = new AddrSpace(executable);    
-    space->SetFileName((char*)filename);
+    space->SetFileName(name);
     userProg->space = space;
     pcbSem.P();
     pcb->append(userProg);
