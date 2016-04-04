@@ -304,3 +304,30 @@ void AddrSpace::ResolvePageFault(int badVAddr){
     delete executable;
 
 }
+
+TranslationEntry *AddrSpace::getPage(int frameNum)
+{
+   switch(placementTable[frameNum])
+    {
+	case LOADED:
+	{
+	    break;
+	}
+
+	case LOADBINARY:
+	{
+	    break;
+	}
+
+	case LOADSWAP:
+	{
+	    break;
+	}
+
+	default:
+	    break; 
+    }
+
+}
+
+

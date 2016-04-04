@@ -19,6 +19,9 @@
 static BitMap *pageBitMap = new BitMap(NumPhysPages);
 #define UserStackSize		1024 	// increase this as necessary!
 
+
+enum placement { LOADED, LOADBINARY, LOADSWAP};
+
 class AddrSpace {
   public:
     AddrSpace(OpenFile *executable);	// Create an address space,
@@ -36,10 +39,11 @@ class AddrSpace {
     int getNumPages();
     TranslationEntry *getPageTable();
     void ClearMemory();
-
     void SetFileName(char* filename);
     char* GetFileName();
     void ResolvePageFault(int badVAddr);
+
+    TranslationEntry *getPage(int frameNum);
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
@@ -47,6 +51,8 @@ class AddrSpace {
     unsigned int numPages;		// Number of pages in the virtual 
 					// address space
     char* filename;
+
+    int *placementTable;
 };
 
 #endif // ADDRSPACE_H
