@@ -266,9 +266,12 @@ void AddrSpace::ResolvePageFault(int badVAddr){
     int pageToLoad = (badVAddr)/PageSize;
     OpenFile* executable = fileSystem->Open(filename); 
 
-    //Fix this shit and make it actually find a good page
-    static int tempAvail = 0;
-    pageTable[pageToLoad].physicalPage = tempAvail++;
+    //Claim the resource
+    bitMapSem.P();
+    pageTable[pageToLoad].physicalPage = pageBitMap->Find();
+    //Set the valid bit to troo
+    pageTable[pageToLoad].valid = TRUE;
+    bitMapSem.V();
 
     NoffHeader noffH;
     unsigned int i, size;
@@ -300,10 +303,4 @@ void AddrSpace::ResolvePageFault(int badVAddr){
     }
     delete executable;
 
-    //Claim the resource
-    bitMapSem.P();
-    //Set the valid bit to troo
-    pageTable[pageToLoad].valid = TRUE;
-    pageBitMap->Mark(avail);
-    bitMapSem.V();
 }
