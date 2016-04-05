@@ -275,9 +275,7 @@ TranslationEntry * AddrSpace::getPageTable()
 void AddrSpace::SetFileName(char* filename){
     printf("Supposed to be %s\n", filename);
     this->filename = filename;
-    if(!executable){
-        executable = fileSystem->Open(filename);
-    }
+    executable = fileSystem->Open(filename);
 
 }
 char* AddrSpace::GetFileName(){
