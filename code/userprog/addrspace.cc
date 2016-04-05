@@ -111,12 +111,12 @@ AddrSpace::AddrSpace(OpenFile *executable)
 		currentThread->getParentThread()->joinSem->V(); 
 	currentThread->Finish();    
     }
-
+/*
     printf("\nPage availability before adding the process:\n");
     pageBitMap->Print();
     printf("Num pages: %d\n", numPages);
     printf("Fits at index: %d\n", avail);
-    
+ */   
     placementTable = new int[numPages];
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
@@ -132,8 +132,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
                         // pages to be read-only
         //bzero(&(machine->mainMemory[PageSize*(avail+i)]), PageSize );
     }
-    printf("\nPage availability after adding the process:\n");
-    pageBitMap->Print();
+  //  printf("\nPage availability after adding the process:\n");
+   // pageBitMap->Print();
 
     bitMapSem.V();
     //Create swapfile
@@ -176,6 +176,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 AddrSpace::~AddrSpace()
 {
+    delete executable;
     delete swapFile;
     delete [] pageTable;
     delete [] placementTable;
@@ -269,6 +270,9 @@ TranslationEntry * AddrSpace::getPageTable()
 void AddrSpace::SetFileName(char* filename){
     printf("Supposed to be %s\n", filename);
     this->filename = filename;
+    if(!executable){
+        executable = fileSystem->Open(filename);
+    }
 
 }
 char* AddrSpace::GetFileName(){
@@ -325,15 +329,20 @@ int AddrSpace::Translate(int vAddr){
 }
 
 void AddrSpace::LoadFromExec(int pageToLoad){
-    OpenFile* executable = fileSystem->Open(filename); 
 
     //Claim the resource
     bitMapSem.P();
     //Find a frame for it
+    printf("\nPage availability before handling page fault:\n");
+    pageBitMap->Print();
     pageTable[pageToLoad].physicalPage = pageBitMap->Find(); //Run page replacement algo
     //Set the valid bit to troo
     pageTable[pageToLoad].valid = TRUE;
     placementTable[pageToLoad] = LOADED;
+    printf("\nPage availability after handling page fault:\n");
+    pageBitMap->Print();
+    printf("Num pages: %d\n", numPages);
+    printf("Fits at index: %d\n", pageTable[pageToLoad].physicalPage);
     bitMapSem.V();
     
     
@@ -355,5 +364,4 @@ void AddrSpace::LoadFromExec(int pageToLoad){
             machine->mainMemory[physAddr] = 0;
         }
     }
-    delete executable;
 }
