@@ -123,7 +123,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
         placementTable[i] = LOADBINARY; //Everything has to be loaded from executable initially
         //pageBitMap->Mark(i+avail);
         pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
-        pageTable[i].physicalPage = i+avail;
+        //pageTable[i].physicalPage = i+avail;
         pageTable[i].valid = FALSE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
@@ -136,6 +136,13 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageBitMap->Print();
 
     bitMapSem.V();
+    //Create swapfile
+    globalThreadIDSem.P();
+    int swapID = globalThreadID;
+    sprintf(swapFileName, "%d.swap", swapID); 
+    globalThreadIDSem.V();
+    fileSystem->Create(swapFileName, size);
+    swapFile = fileSystem->Open(swapFileName);
 /* 
 // zero out the entire address space, to zero the unitialized data segment 
 // and the stack segment
@@ -169,6 +176,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 AddrSpace::~AddrSpace()
 {
+    delete swapFile;
     delete [] pageTable;
     delete [] placementTable;
 }
@@ -179,12 +187,14 @@ void AddrSpace::ClearMemory(){
     pageBitMap->Print();
     for(int i = 0; i < numPages; i++)
     {
-	index = pageTable[i].physicalPage;
-	pageBitMap->Clear(index);
+        index = pageTable[i].physicalPage;
+        if(placementTable[i] == LOADED && pageTable[i].valid)
+            pageBitMap->Clear(index);
     }
     printf("\nPage availability after exiting the process:\n");
     pageBitMap->Print();
     bitMapSem.V();
+    fileSystem->Remove(swapFileName);
 }
 //----------------------------------------------------------------------
 // AddrSpace::InitRegisters
@@ -259,6 +269,7 @@ TranslationEntry * AddrSpace::getPageTable()
 void AddrSpace::SetFileName(char* filename){
     printf("Supposed to be %s\n", filename);
     this->filename = filename;
+
 }
 char* AddrSpace::GetFileName(){
     return filename;
