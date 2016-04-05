@@ -18,7 +18,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "addrspace.h"
-#include "noff.h"
+//#include "noff.h"
 #ifdef HOST_SPARC
 #include <strings.h>
 #endif
@@ -116,7 +116,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageBitMap->Print();
     printf("Num pages: %d\n", numPages);
     printf("Fits at index: %d\n", avail);
-
+    
+    placementTable = new int[numPages];
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
         //pageBitMap->Mark(i+avail);
@@ -167,9 +168,9 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 AddrSpace::~AddrSpace()
 {
-    delete pageTable;
+    delete [] pageTable;
+    delete [] placementTable;
 }
-
 void AddrSpace::ClearMemory(){
     int index;
     bitMapSem.P();	
@@ -278,6 +279,8 @@ void AddrSpace::ResolvePageFault(int badVAddr){
 
     for(int i = pageToLoad*PageSize, j=0; i < (pageToLoad+1)*PageSize; i++, j++){
         int physAddr = avail*PageSize + j;
+        int physAddr2 = Translate(i);
+        ASSERT(physAddr == physAddr2);
 
         //Memory in code segment
         if(InCode(i)){
@@ -299,6 +302,7 @@ void AddrSpace::ResolvePageFault(int badVAddr){
 
 TranslationEntry *AddrSpace::getPage(int frameNum)
 {
+    return &pageTable[frameNum];
    switch(placementTable[frameNum])
     {
 	case LOADED:
@@ -325,11 +329,20 @@ TranslationEntry *AddrSpace::getPage(int frameNum)
 bool AddrSpace::InCode(int addr){
     if(addr >= noffH.code.virtualAddr && addr < noffH.code.virtualAddr + noffH.code.size){
         return true;
+    }
     return false;
 }
 
 bool AddrSpace::InData(int addr){
-    if(addr >= noffH.data.virtualAddr && addr < noffH.data.virtualAddr + noffH.data.size){
+    if(addr >= noffH.initData.virtualAddr && addr < noffH.initData.virtualAddr + noffH.initData.size){
         return true;
+    }
     return false;
+}
+
+int AddrSpace::Translate(int vAddr){
+    int virtualPage = vAddr/PageSize;
+    int offset = vAddr%PageSize;
+    int physAddr = (getPage(virtualPage)->physicalPage)*PageSize + offset;
+    return physAddr;
 }

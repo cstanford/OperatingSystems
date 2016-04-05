@@ -15,6 +15,7 @@
 
 #include "copyright.h"
 #include "filesys.h"
+#include "noff.h"
 #include "bitmap.h"
 static BitMap *pageBitMap = new BitMap(NumPhysPages);
 #define UserStackSize		1024 	// increase this as necessary!
@@ -57,6 +58,7 @@ class AddrSpace {
 
     bool InCode(int addr);
     bool InData(int addr);
+    int Translate(int addr);
 };
 
 #endif // ADDRSPACE_H
