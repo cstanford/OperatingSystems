@@ -15,6 +15,7 @@
 
 #include "copyright.h"
 #include "filesys.h"
+#include "noff.h"
 #include "bitmap.h"
 static BitMap *pageBitMap = new BitMap(NumPhysPages);
 #define UserStackSize		1024 	// increase this as necessary!
@@ -46,6 +47,7 @@ class AddrSpace {
     TranslationEntry *getPage(int frameNum);
 
   private:
+    NoffHeader noffH;
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!
     unsigned int numPages;		// Number of pages in the virtual 
@@ -53,6 +55,10 @@ class AddrSpace {
     char* filename;
 
     int *placementTable;
+
+    bool InCode(int addr);
+    bool InData(int addr);
+    int Translate(int addr);
 };
 
 #endif // ADDRSPACE_H

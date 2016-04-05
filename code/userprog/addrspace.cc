@@ -18,7 +18,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "addrspace.h"
-#include "noff.h"
+//#include "noff.h"
 #ifdef HOST_SPARC
 #include <strings.h>
 #endif
@@ -62,7 +62,6 @@ SwapHeader (NoffHeader *noffH)
 
 AddrSpace::AddrSpace(OpenFile *executable)
 {
-    NoffHeader noffH;
     unsigned int i, size;
 
     executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
@@ -117,7 +116,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageBitMap->Print();
     printf("Num pages: %d\n", numPages);
     printf("Fits at index: %d\n", avail);
-
+    
+    placementTable = new int[numPages];
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
         //pageBitMap->Mark(i+avail);
@@ -168,9 +168,9 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 AddrSpace::~AddrSpace()
 {
-    delete pageTable;
+    delete [] pageTable;
+    delete [] placementTable;
 }
-
 void AddrSpace::ClearMemory(){
     int index;
     bitMapSem.P();	
@@ -271,29 +271,24 @@ void AddrSpace::ResolvePageFault(int badVAddr){
     pageTable[pageToLoad].physicalPage = pageBitMap->Find();
     //Set the valid bit to troo
     pageTable[pageToLoad].valid = TRUE;
+    placementTable[pageToLoad] = LOADED;
     bitMapSem.V();
-
-    NoffHeader noffH;
-    unsigned int i, size;
-
-    executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
-    if ((noffH.noffMagic != NOFFMAGIC) && 
-		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
-    	SwapHeader(&noffH);    
 
     //Decide on which frame to load it into and set it in pageTable->physicalPage
     int avail = pageTable[pageToLoad].physicalPage;
 
     for(int i = pageToLoad*PageSize, j=0; i < (pageToLoad+1)*PageSize; i++, j++){
         int physAddr = avail*PageSize + j;
+        int physAddr2 = Translate(i);
+        ASSERT(physAddr == physAddr2);
 
         //Memory in code segment
-        if(i >= noffH.code.virtualAddr && i < noffH.code.virtualAddr + noffH.code.size){
+        if(InCode(i)){
             executable->ReadAt(&(machine->mainMemory[physAddr]),
                 1, noffH.code.inFileAddr + i - noffH.code.virtualAddr);
         }
         //Memory in init segment
-        else if(i >= noffH.initData.virtualAddr && i < noffH.initData.virtualAddr + noffH.initData.size){
+        else if(InData(i)){
             executable->ReadAt(&(machine->mainMemory[physAddr]),
                 1, noffH.initData.inFileAddr + i - noffH.initData.virtualAddr);
         }
@@ -307,6 +302,7 @@ void AddrSpace::ResolvePageFault(int badVAddr){
 
 TranslationEntry *AddrSpace::getPage(int frameNum)
 {
+    return &pageTable[frameNum];
    switch(placementTable[frameNum])
     {
 	case LOADED:
@@ -330,4 +326,23 @@ TranslationEntry *AddrSpace::getPage(int frameNum)
 
 }
 
+bool AddrSpace::InCode(int addr){
+    if(addr >= noffH.code.virtualAddr && addr < noffH.code.virtualAddr + noffH.code.size){
+        return true;
+    }
+    return false;
+}
 
+bool AddrSpace::InData(int addr){
+    if(addr >= noffH.initData.virtualAddr && addr < noffH.initData.virtualAddr + noffH.initData.size){
+        return true;
+    }
+    return false;
+}
+
+int AddrSpace::Translate(int vAddr){
+    int virtualPage = vAddr/PageSize;
+    int offset = vAddr%PageSize;
+    int physAddr = (getPage(virtualPage)->physicalPage)*PageSize + offset;
+    return physAddr;
+}
