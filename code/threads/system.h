@@ -41,6 +41,10 @@ extern Semaphore globalThreadIDSem;
 extern Semaphore bitMapSem;
 extern  pcbList* pcb;
 
+//Side dish
+extern int customVArg;
+extern bool extraOutput;
+
 #ifdef USER_PROGRAM
 #include "machine.h"
 extern Machine* machine;	// user program memory and registers

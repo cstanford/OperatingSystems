@@ -26,6 +26,11 @@ pcbList* pcb = new pcbList();
 
 //END MAIN COURSE//
 
+// Side dish
+int customVArg = 0;	// arguement for custom parameter -V
+bool extraOutput = false;
+// End side dish
+
 #ifdef FILESYS_NEEDED
 FileSystem  *fileSystem;
 #endif
@@ -129,6 +134,19 @@ Initialize(int argc, char **argv)
             customFitArg = atoi(*(argv + 1));
             argCount = 2;
         }
+		// Side dish
+		else if (!strcmp(*argv, "-V"))
+		{
+			ASSERT(argc > 1);
+			customVArg = atoi(*(argv + 1));
+			argCount = 2;
+		}
+		else if (!strcmp(*argv, "-E"))
+		{
+			printf("\nExtra output enabled.\n");
+			if (argc == 1)
+				extraOutput = true;
+		}
         else { customParameterArg = NULL; }
         // end edit
 
