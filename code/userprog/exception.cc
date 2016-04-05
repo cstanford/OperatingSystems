@@ -29,6 +29,8 @@
 #include "synch.h"
 #include "sysdep.h"   // FA98
 #include "noff.h"
+#include "hashmap.h"
+
 // begin FA98
 static Semaphore pcbSem("Don't touch my pcbList yo", 1);
 static int SRead(int addr, int size, int id);
