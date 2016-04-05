@@ -44,7 +44,7 @@ class AddrSpace {
     char* GetFileName();
     void ResolvePageFault(int badVAddr);
 
-    TranslationEntry *getPage(int frameNum);
+    void LoadPage(int frameNum);
 
   private:
     NoffHeader noffH;
@@ -59,6 +59,8 @@ class AddrSpace {
     bool InCode(int addr);
     bool InData(int addr);
     int Translate(int addr);
+
+    void LoadFromExec(int page);
 };
 
 #endif // ADDRSPACE_H
