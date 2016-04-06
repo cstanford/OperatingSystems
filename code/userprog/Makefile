@@ -323,7 +323,8 @@ exception.o: ../userprog/exception.cc /usr/include/stdio.h \
  ../threads/synch.h ../threads/list.h ../threads/scheduler.h \
  ../machine/interrupt.h ../threads/list.h ../machine/stats.h \
  ../machine/timer.h ../threads/pcbList.h ../userprog/syscall.h \
- ../userprog/addrspace.h ../threads/synch.h
+ ../userprog/addrspace.h ../threads/synch.h ../userprog/hashmap.h \
+ ../userprog/hashnode.h ../userprog/keyhash.h
 progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
  ../threads/system.h ../threads/copyright.h ../threads/utility.h \
  ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \

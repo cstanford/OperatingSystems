@@ -26,10 +26,6 @@ class HashNode {
 	    return next;
 	}
 
-	void setNext(HashNode *next){
-	    return next;
-	}
-
 	void setNext(HashNode *next) {
 	    HashNode::next = next;
 	}
