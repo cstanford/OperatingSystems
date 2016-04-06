@@ -50,6 +50,7 @@ extern bool extraOutput;
 struct iptNode;
 extern iptNode *ipt;
 extern HashMap<IPTHash, int, PIDHash> hmap;
+extern Semaphore hashSem;
 
 #ifdef USER_PROGRAM
 #include "machine.h"

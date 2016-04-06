@@ -34,6 +34,8 @@ struct iptNode{
     Thread *threadP;
     unsigned int vpn;
 };
+Semaphore hashSem("hashSem", 1);
+
 
 
 
