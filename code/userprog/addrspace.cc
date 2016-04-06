@@ -90,7 +90,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     numPages = divRoundUp(size, PageSize);
     size = numPages * PageSize;
 
-    ASSERT(numPages <= NumPhysPages);		// check we're not trying
+    //ASSERT(numPages <= NumPhysPages);		// check we're not trying
 						// to run anything too big --
 						// at least until we have
 						// virtual memory
@@ -102,6 +102,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // first, set up the translation 
     bitMapSem.P();
     int avail = pageBitMap->FindFit(numPages, customFitArg);
+    /*
     if (avail == -1) 
     {
 	printf("Not enough memory;\nPages full.\n\n");
@@ -274,8 +275,9 @@ TranslationEntry * AddrSpace::getPageTable()
 
 void AddrSpace::SetFileName(char* filename){
     printf("Supposed to be %s\n", filename);
+    printf("Name is %d long.\n", strlen(filename));
     this->filename = filename;
-    executable = fileSystem->Open(filename);
+    ASSERT(executable = fileSystem->Open(filename));
 
 }
 char* AddrSpace::GetFileName(){
@@ -343,8 +345,10 @@ void AddrSpace::LoadFromExec(int pageToLoad){
     placementTable[pageToLoad] = LOADED;
     printf("\nPage availability after handling page fault:\n");
     pageBitMap->Print();
+    printf("Current Thread is %d\n", currentThread->getThisThreadID());
     printf("Num pages: %d\n", numPages);
     printf("Fits at index: %d\n", pageTable[pageToLoad].physicalPage);
+    printf("Loading virtual page: %d\n", pageToLoad);
     bitMapSem.V();
     
     

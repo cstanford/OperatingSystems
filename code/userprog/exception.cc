@@ -310,6 +310,8 @@ static void SWrite(char *buffer, int size, int id)
 SpaceId SExec(int filename)
 {
     char* name = readString(filename);
+    char fileName[100];
+    strcpy(fileName, name);
     int id = currentThread->getThisThreadID();
     printf("Thread %d performed syscall SC_EXEC on file  %s\n", id,  name);
     //Create a new thread to do this stuff
@@ -339,14 +341,14 @@ SpaceId SExec(int filename)
     }
 
     space = new AddrSpace(executable);    
-    space->SetFileName(name);
+    space->SetFileName(fileName);
     userProg->space = space;
     pcbSem.P();
     pcb->append(userProg);
     pcbSem.V();
     delete executable;			// close file
 
-    userProg->Fork(execFunc, (int)name);
+    userProg->Fork(execFunc, (int)fileName);
     userProg->setParentID(currentThread->getThisThreadID());
     userProg->setParentThread(currentThread);
 

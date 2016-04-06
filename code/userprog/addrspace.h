@@ -45,6 +45,7 @@ class AddrSpace {
     void ResolvePageFault(int badVAddr);
 
     void LoadPage(int frameNum);
+    int Translate(int addr);
 
   private:
     OpenFile* swapFile;
@@ -61,7 +62,6 @@ class AddrSpace {
 
     bool InCode(int addr);
     bool InData(int addr);
-    int Translate(int addr);
 
     void LoadFromExec(int page);
 };
