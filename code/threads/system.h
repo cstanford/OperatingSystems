@@ -47,7 +47,7 @@ extern  pcbList* pcb;
 //Side dish
 extern int customVArg;
 extern bool extraOutput;
-struct iptNode;
+extern struct iptNode;
 extern iptNode *ipt;
 extern HashMap<IPTHash, int, PIDHash> hmap;
 extern Semaphore hashSem;
