@@ -17,6 +17,9 @@
 #include "timer.h"
 #include "pcbList.h"
 #include "synch.h"
+#include "hashmap.h"
+#include "hashnode.h"
+#include "keyhash.h"
 
 // Initialization and cleanup routines
 extern void Initialize(int argc, char **argv); 	// Initialization,
@@ -44,6 +47,8 @@ extern  pcbList* pcb;
 //Side dish
 extern int customVArg;
 extern bool extraOutput;
+struct iptNode;
+extern iptNode *ipt;
 
 #ifdef USER_PROGRAM
 #include "machine.h"

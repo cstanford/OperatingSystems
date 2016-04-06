@@ -29,6 +29,13 @@ pcbList* pcb = new pcbList();
 // Side dish
 int customVArg = 0;	// arguement for custom parameter -V
 bool extraOutput = false;
+struct iptNode{
+    Thread *threadP;
+    unsigned int vpn;
+};
+
+
+
 // End side dish
 
 #ifdef FILESYS_NEEDED
