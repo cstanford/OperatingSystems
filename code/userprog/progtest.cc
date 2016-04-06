@@ -29,7 +29,7 @@ void execFunc2(int null)
 void
 StartProcess(char *filename)
 {   
-    IPTHash a;
+   /* IPTHash a;
     a.pid = 0;
     a.vpn = 23;
     IPTHash b;
@@ -40,7 +40,7 @@ StartProcess(char *filename)
     int val;
     hmap.get(a, val);
     printf("Process %d Page %d is stored in frame %d.\n", a.pid, a.vpn, val);
-    return;
+    return;*/
     pageBitMap->printFit(customFitArg);
 	 printf("Selected: ");
 	 if (customVArg == 2)
