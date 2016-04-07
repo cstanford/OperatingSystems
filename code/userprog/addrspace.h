@@ -63,7 +63,7 @@ class AddrSpace {
     bool InCode(int addr);
     bool InData(int addr);
 
-    void LoadFromExec(int page);
+    void SwapIn(int page);
 };
 
 #endif // ADDRSPACE_H

@@ -210,7 +210,7 @@ void AddrSpace::ClearMemory(){
     for(int i = 0; i < numPages; i++)
     {
         index = pageTable[i].physicalPage;
-        if(placementTable[i] == LOADED && pageTable[i].valid)
+        if(pageTable[i].valid)
             pageBitMap->Clear(index);
     }
     printf("\nPage availability after exiting the process:\n");
@@ -300,12 +300,13 @@ char* AddrSpace::GetFileName(){
 }
 void AddrSpace::ResolvePageFault(int badVAddr){ 
     int pageToLoad = (badVAddr)/PageSize;
-    LoadPage(pageToLoad);
+    SwapIn(pageToLoad);
+    //LoadPage(pageToLoad);
 }
 
 //Maybe unneeded?
 void AddrSpace::LoadPage(int pageNum){
-    switch(placementTable[pageNum])
+    /*switch(placementTable[pageNum])
     {
 	case LOADBINARY:
 	{
@@ -322,7 +323,7 @@ void AddrSpace::LoadPage(int pageNum){
 
 	default:
 	    break; 
-    }
+    }*/
 
 }
 
@@ -347,7 +348,7 @@ int AddrSpace::Translate(int vAddr){
     return physAddr;
 }
 
-void AddrSpace::LoadFromExec(int pageToLoad){
+void AddrSpace::SwapIn(int pageToLoad){
 
     //Claim the resource
     bitMapSem.P();
@@ -355,9 +356,15 @@ void AddrSpace::LoadFromExec(int pageToLoad){
     printf("\nPage availability before handling page fault:\n");
     pageBitMap->Print();
     pageTable[pageToLoad].physicalPage = pageBitMap->Find(); //Run page replacement algo
+    if(pageTable[pageToLoad].physicalPage == -1){
+        bitMapSem.V();
+        printf("Sorry, there is not enough memory. Terminating thread.\n");
+        ClearMemory();
+        currentThread->Finish();
+    }
     //Set the valid bit to troo
     pageTable[pageToLoad].valid = TRUE;
-    placementTable[pageToLoad] = LOADED;
+    //placementTable[pageToLoad] = LOADED;
     printf("\nPage availability after handling page fault:\n");
     pageBitMap->Print();
     printf("Current Thread is %d\n", currentThread->getThisThreadID());
@@ -368,7 +375,6 @@ void AddrSpace::LoadFromExec(int pageToLoad){
     
     
     for(int i = pageToLoad*PageSize; i < (pageToLoad+1)*PageSize; i++){
-        //int physAddr = avail*PageSize + j;
         int physAddr = Translate(i);
         swapFile->ReadAt(&(machine->mainMemory[physAddr]), 1, i);
     }
