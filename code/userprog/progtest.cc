@@ -30,6 +30,15 @@ void
 StartProcess(char *filename)
 {   
     pageBitMap->printFit(customFitArg);
+	 printf("Selected: ");
+	 if (customVArg == 2)
+		printf("FIFO\n");
+	 else if (customVArg == 3)
+		printf("Random\n");
+	 else printf("Demand paging\n");
+	if (extraOutput)
+		printf("Extra -E output option selected.\n");
+
     Thread *main = new Thread("Main thread");
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
