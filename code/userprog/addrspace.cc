@@ -357,10 +357,27 @@ void AddrSpace::SwapIn(int pageToLoad){
     pageBitMap->Print();
     pageTable[pageToLoad].physicalPage = pageBitMap->Find(); //Run page replacement algo
     if(pageTable[pageToLoad].physicalPage == -1){
-        bitMapSem.V();
-        printf("Sorry, there is not enough memory. Terminating thread.\n");
-        ClearMemory();
-        currentThread->Finish();
+
+        if(customVArg == 1){
+            //FIFO Page replacement goes here
+            printf("We should have died\n");
+            bitMapSem.V();
+            printf("Sorry, there is not enough memory. Terminating thread.\n");
+            ClearMemory();
+            currentThread->Finish();
+        } else if(customVArg == 2){
+            //Random Page replacement goes here
+            printf("We should have died\n");
+            bitMapSem.V();
+            printf("Sorry, there is not enough memory. Terminating thread.\n");
+            ClearMemory();
+            currentThread->Finish();
+        } else {
+            bitMapSem.V();
+            printf("Sorry, there is not enough memory. Terminating thread.\n");
+            ClearMemory();
+            currentThread->Finish();
+        }
     }
     //Set the valid bit to troo
     pageTable[pageToLoad].valid = TRUE;
