@@ -36,8 +36,7 @@ HashMap<IPTHash, int, PIDHash> hmap;
 };*/
 iptNode *ipt = new iptNode[32];
 Semaphore hashSem("hashSem", 1);
-
-
+List *fifoList = new List();
 
 
 // End side dish

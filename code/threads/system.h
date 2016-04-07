@@ -55,6 +55,7 @@ struct iptNode{
 extern iptNode *ipt;
 extern HashMap<IPTHash, int, PIDHash> hmap;
 extern Semaphore hashSem;
+extern List *fifoList;
 
 #ifdef USER_PROGRAM
 #include "machine.h"
