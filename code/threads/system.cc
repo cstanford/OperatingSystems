@@ -29,6 +29,7 @@ pcbList* pcb = new pcbList();
 // Side dish
 int customVArg = 0;	// arguement for custom parameter -V
 bool extraOutput = false;
+HashMap<IPTHash, int, PIDHash> hmap;
 struct iptNode{
     Thread *threadP;
     unsigned int vpn;

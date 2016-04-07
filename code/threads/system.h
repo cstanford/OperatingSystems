@@ -49,6 +49,7 @@ extern int customVArg;
 extern bool extraOutput;
 struct iptNode;
 extern iptNode *ipt;
+extern HashMap<IPTHash, int, PIDHash> hmap;
 
 #ifdef USER_PROGRAM
 #include "machine.h"
