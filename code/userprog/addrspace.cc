@@ -147,7 +147,22 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
     for(int i = 0; i < size; i++)
     {
-	swapFile->WriteAt("0",1,i);
+	    swapFile->WriteAt("0",1,i);
+    }
+    for(int i = 0; i < size; i++){
+        char *t;
+        //Memory in code segment
+        if(InCode(i)){
+            executable->ReadAt(t,
+                1, noffH.code.inFileAddr + i - noffH.code.virtualAddr);
+            swapFile->WriteAt(t, 1, i);
+        }
+        //Memory in init segment
+        else if(InData(i)){
+            executable->ReadAt(t,
+                1, noffH.initData.inFileAddr + i - noffH.initData.virtualAddr);
+            swapFile->WriteAt(t, 1, i);
+        }
     }
 /* 
 // zero out the entire address space, to zero the unitialized data segment 
@@ -352,22 +367,9 @@ void AddrSpace::LoadFromExec(int pageToLoad){
     bitMapSem.V();
     
     
-    for(int i = pageToLoad*PageSize, j=0; i < (pageToLoad+1)*PageSize; i++, j++){
+    for(int i = pageToLoad*PageSize; i < (pageToLoad+1)*PageSize; i++){
         //int physAddr = avail*PageSize + j;
         int physAddr = Translate(i);
-
-        //Memory in code segment
-        if(InCode(i)){
-            executable->ReadAt(&(machine->mainMemory[physAddr]),
-                1, noffH.code.inFileAddr + i - noffH.code.virtualAddr);
-        }
-        //Memory in init segment
-        else if(InData(i)){
-            executable->ReadAt(&(machine->mainMemory[physAddr]),
-                1, noffH.initData.inFileAddr + i - noffH.initData.virtualAddr);
-        }
-        else {
-            machine->mainMemory[physAddr] = 0;
-        }
+        swapFile->ReadAt(&(machine->mainMemory[physAddr]), 1, i);
     }
 }
