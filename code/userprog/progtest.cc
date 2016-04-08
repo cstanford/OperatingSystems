@@ -43,11 +43,15 @@ StartProcess(char *filename)
     return;*/
     pageBitMap->printFit(customFitArg);
 	 printf("Selected: ");
-	 if (customVArg == 2)
+	 if (customVArg == 1)
 		printf("FIFO\n");
-	 else if (customVArg == 3)
+	 else if (customVArg == 2)
 		printf("Random\n");
-	 else printf("Demand paging\n");
+	 else {
+		printf("Demand paging");
+			if (customVArg != 0) printf(" (default option)");
+		printf("\n");
+	}
 	if (extraOutput)
 		printf("Extra -E output option selected.\n");
 
