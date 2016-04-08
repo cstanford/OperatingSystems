@@ -363,19 +363,19 @@ void AddrSpace::SwapIn(int pageToLoad){
 
         if(customVArg == 1){
             //FIFO Page replacement goes here
-            printf("We should have died\n");
-            bitMapSem.V();
-            printf("Sorry, there is not enough memory. Terminating thread.\n");
-            ClearMemory();
-            currentThread->Finish();
+            int i = *(int*)fifoList->Remove();
+            ipt[i].threadP->space->SwapOut(ipt[i].vpn, ipt[i].threadP->getThisThreadID());
+            pageTable[pageToLoad].physicalPage = i; //Run page replacement algo
+            pageBitMap->Mark(i);
+            physPage = pageTable[pageToLoad].physicalPage;
         } else if(customVArg == 2){
             //Random Page replacement goes here
             //
             //This is just a test for swap-out
             int i = Random() % NumPhysPages;
-            ASSERT(ipt[i].threadP);
+            /*ASSERT(ipt[i].threadP);
             ASSERT(ipt[i].threadP != NULL);
-            ASSERT(ipt[i].threadP->getThisThreadID() != NULL);
+            ASSERT(ipt[i].threadP->getThisThreadID() != NULL);*/
             ipt[i].threadP->space->SwapOut(ipt[i].vpn, ipt[i].threadP->getThisThreadID());
             pageTable[pageToLoad].physicalPage = i; //Run page replacement algo
             pageBitMap->Mark(i);
@@ -396,6 +396,9 @@ void AddrSpace::SwapIn(int pageToLoad){
     t.vpn = pageToLoad;
     printf("Physical page is %d\n", physPage);
     hmap.put(t, physPage);
+    if(customVArg == 1){
+        fifoList->Append(new int(physPage));
+    } 
     int val = -1;
     ASSERT(hmap.get(t, val));
     printf("Stored hash PID %d VPN %d Frame %d\n", t.pid, t.vpn, val);
