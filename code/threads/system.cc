@@ -30,10 +30,10 @@ pcbList* pcb = new pcbList();
 int customVArg = 0;	// arguement for custom parameter -V
 bool extraOutput = false;
 HashMap<IPTHash, int, PIDHash> hmap;
-struct iptNode{
+/*struct iptNode{
     Thread *threadP;
     unsigned int vpn;
-};
+};*/
 iptNode *ipt = new iptNode[32];
 Semaphore hashSem("hashSem", 1);
 

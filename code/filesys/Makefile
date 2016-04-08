@@ -344,7 +344,7 @@ exception.o: ../userprog/exception.cc /usr/include/stdio.h \
  ../machine/timer.h ../threads/pcbList.h ../threads/hashmap.h \
  ../threads/hashnode.h ../threads/keyhash.h ../filesys/synchdisk.h \
  ../machine/disk.h ../threads/synch.h ../userprog/syscall.h \
- ../userprog/addrspace.h ../userprog/hashmap.h
+ ../userprog/addrspace.h ../threads/hashmap.h
 progtest.o: ../userprog/progtest.cc ../threads/copyright.h \
  ../threads/system.h ../threads/copyright.h ../threads/utility.h \
  ../threads/bool.h ../machine/sysdep.h /usr/include/stdio.h \

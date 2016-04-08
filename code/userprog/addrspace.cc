@@ -356,6 +356,7 @@ void AddrSpace::SwapIn(int pageToLoad){
     printf("\nPage availability before handling page fault:\n");
     pageBitMap->Print();
     pageTable[pageToLoad].physicalPage = pageBitMap->Find(); //Run page replacement algo
+    int physPage = pageTable[pageToLoad].physicalPage;
     if(pageTable[pageToLoad].physicalPage == -1){
 
         if(customVArg == 1){
@@ -380,7 +381,19 @@ void AddrSpace::SwapIn(int pageToLoad){
         }
     }
     //Set the valid bit to troo
+    hashSem.P();
     pageTable[pageToLoad].valid = TRUE;
+    ipt[physPage].threadP = &(*currentThread);
+    ipt[physPage].vpn = pageToLoad;
+    IPTHash t;
+    t.pid = currentThread->getThisThreadID();
+    t.vpn = pageToLoad;
+    printf("Physical page is %d\n", physPage);
+    hmap.put(t, physPage);
+    int val = -1;
+    ASSERT(hmap.get(t, val));
+    printf("Stored hash PID %d VPN %d Frame %d\n", t.pid, t.vpn, val);
+    hashSem.V();
     //placementTable[pageToLoad] = LOADED;
     printf("\nPage availability after handling page fault:\n");
     pageBitMap->Print();

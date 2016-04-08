@@ -15,7 +15,7 @@ struct IPTHash{
         return (this->pid == rhs.pid && this->vpn == rhs.vpn);
     }
     bool operator!=(const IPTHash& rhs) const {
-        return (*this == rhs);
+        return !(*this == rhs);
     }
 };
 template <typename K>
@@ -30,7 +30,8 @@ template <typename K>
 struct PIDHash {
     unsigned long operator()(const IPTHash& key) const
     {
-        return (key.pid*key.vpn*37) % TABLE_SIZE;
+        int result = (key.pid*13 + key.vpn*37) % TABLE_SIZE;
+        return result;
     }
 };
 #endif
