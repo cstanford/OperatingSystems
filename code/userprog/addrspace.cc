@@ -358,6 +358,7 @@ void AddrSpace::SwapIn(int pageToLoad){
     pageBitMap->Print();
     pageTable[pageToLoad].physicalPage = pageBitMap->Find(); //Run page replacement algo
     int physPage = pageTable[pageToLoad].physicalPage;
+    hashSem.P();
     if(pageTable[pageToLoad].physicalPage == -1){
 
         if(customVArg == 1){
@@ -369,11 +370,18 @@ void AddrSpace::SwapIn(int pageToLoad){
             currentThread->Finish();
         } else if(customVArg == 2){
             //Random Page replacement goes here
-            printf("We should have died\n");
-            bitMapSem.V();
-            printf("Sorry, there is not enough memory. Terminating thread.\n");
-            ClearMemory();
-            currentThread->Finish();
+            //
+            //This is just a test for swap-out
+            int i = 0;
+            for(; i < 32; i++){
+                if(pageTable[i].valid){
+                    printf("Decided on I value of %d\n", i);
+                    break;
+                }
+            }
+            SwapOut(i, currentThread->getThisThreadID());
+            pageTable[pageToLoad].physicalPage = pageBitMap->Find(); //Run page replacement algo
+            physPage = pageTable[pageToLoad].physicalPage;
         } else {
             bitMapSem.V();
             printf("Sorry, there is not enough memory. Terminating thread.\n");
@@ -382,7 +390,6 @@ void AddrSpace::SwapIn(int pageToLoad){
         }
     }
     //Set the valid bit to troo
-    hashSem.P();
     pageTable[pageToLoad].valid = TRUE;
     ipt[physPage].threadP = &(*currentThread);
     ipt[physPage].vpn = pageToLoad;
@@ -409,4 +416,20 @@ void AddrSpace::SwapIn(int pageToLoad){
         int physAddr = Translate(i);
         swapFile->ReadAt(&(machine->mainMemory[physAddr]), 1, i);
     }
+}
+
+//Takes in virtual page to write out, and which thread PID owns it, since currentThread is not guaranteed to be the owner
+void AddrSpace::SwapOut(int pageToWrite, int pid){
+    for(int i = pageToWrite*PageSize; i < (pageToWrite+1)*PageSize; i++){
+        int physAddr = Translate(i);
+        swapFile->WriteAt(&(machine->mainMemory[physAddr]), 1, i);
+    }
+    printf("Page to write is %d\n", pageToWrite);
+    pageTable[pageToWrite].valid = FALSE;
+    pageBitMap->Clear(pageTable[pageToWrite].physicalPage);
+    IPTHash t;
+    t.pid = pid; 
+    t.vpn = pageToWrite;
+    hmap.remove(t);
+    printf("Swaped out PID %d VPN %d Frame %d\n", t.pid, t.vpn, pageTable[pageToWrite].physicalPage);
 }

@@ -45,6 +45,8 @@ class AddrSpace {
     void ResolvePageFault(int badVAddr);
 
     void LoadPage(int frameNum);
+    //Takes in virtual page to write out, and which thread PID owns it, since currentThread is not guaranteed to be the owner
+    void SwapOut(int pageToWrite, int pid);
     int Translate(int addr);
 
   private:
