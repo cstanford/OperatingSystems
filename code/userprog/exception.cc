@@ -381,6 +381,7 @@ void exitFunc(int exitStatus)
     int id = currentThread->getThisThreadID();
     if(currentThread->getParentThread() != NULL){
 	if(currentThread->getParentThread()->getWaitingID() == currentThread->getThisThreadID()){
+        printf("CRASHING ON THREAD %d\n", currentThread->getThisThreadID());
 	    currentThread->getParentThread()->setJoinExitStatus(exitStatus);
 	    currentThread->getParentThread()->joinSem->V();
 	}

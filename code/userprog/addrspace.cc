@@ -372,15 +372,13 @@ void AddrSpace::SwapIn(int pageToLoad){
             //Random Page replacement goes here
             //
             //This is just a test for swap-out
-            int i = 0;
-            for(; i < 32; i++){
-                if(pageTable[i].valid){
-                    printf("Decided on I value of %d\n", i);
-                    break;
-                }
-            }
-            SwapOut(i, currentThread->getThisThreadID());
-            pageTable[pageToLoad].physicalPage = pageBitMap->Find(); //Run page replacement algo
+            int i = Random() % NumPhysPages;
+            ASSERT(ipt[i].threadP);
+            ASSERT(ipt[i].threadP != NULL);
+            ASSERT(ipt[i].threadP->getThisThreadID() != NULL);
+            ipt[i].threadP->space->SwapOut(ipt[i].vpn, ipt[i].threadP->getThisThreadID());
+            pageTable[pageToLoad].physicalPage = i; //Run page replacement algo
+            pageBitMap->Mark(i);
             physPage = pageTable[pageToLoad].physicalPage;
         } else {
             bitMapSem.V();
