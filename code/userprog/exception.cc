@@ -219,6 +219,7 @@ ExceptionHandler(ExceptionType which)
 	//SExit(1);
 	break;
     case PageFaultException:
+	 stats->numPageFaults += 1;		// increment's Page Fault statistics that is printed when Nachos terminates
     //Failing virtual address read is in register 39
     badAddr = machine->ReadRegister(39);
     //Get the name of the executable
