@@ -153,9 +153,7 @@ Initialize(int argc, char **argv)
 		}
 		else if (!strcmp(*argv, "-E"))
 		{
-			printf("\nExtra output enabled.\n");
-			if (argc == 1)
-				extraOutput = true;
+            extraOutput = true;
 		}
         else { customParameterArg = NULL; }
         // end edit

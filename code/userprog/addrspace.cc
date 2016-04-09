@@ -217,6 +217,7 @@ void AddrSpace::ClearMemory(){
     printf("\nPage availability after exiting the process:\n");
     pageBitMap->Print();
     bitMapSem.V();
+    printf("Deleting %s\n", swapFileName);
     fileSystem->Remove(swapFileName);
 }
 //----------------------------------------------------------------------
@@ -290,8 +291,6 @@ TranslationEntry * AddrSpace::getPageTable()
 }
 
 void AddrSpace::SetFileName(char* filename){
-    printf("Supposed to be %s\n", filename);
-    printf("Name is %d long.\n", strlen(filename));
     this->filename = filename;
     ASSERT(executable = fileSystem->Open(filename));
 
@@ -394,14 +393,15 @@ void AddrSpace::SwapIn(int pageToLoad){
     IPTHash t;
     t.pid = currentThread->getThisThreadID();
     t.vpn = pageToLoad;
-    printf("Physical page is %d\n", physPage);
+    if(extraOutput){
+        printf("Process %d requests VPN %d\n", currentThread->getThisThreadID(), pageToLoad);
+        printf("Assigning Frame %d\n", physPage);
+    }
     hmap.put(t, physPage);
     if(customVArg == 1){
         fifoList->Append(new int(physPage));
     } 
     int val = -1;
-    ASSERT(hmap.get(t, val));
-    printf("Stored hash PID %d VPN %d Frame %d\n", t.pid, t.vpn, val);
     hashSem.V();
     //placementTable[pageToLoad] = LOADED;
     printf("\nPage availability after handling page fault:\n");
@@ -425,12 +425,13 @@ void AddrSpace::SwapOut(int pageToWrite, int pid){
         int physAddr = Translate(i);
         swapFile->WriteAt(&(machine->mainMemory[physAddr]), 1, i);
     }
-    printf("Page to write is %d\n", pageToWrite);
     pageTable[pageToWrite].valid = FALSE;
     pageBitMap->Clear(pageTable[pageToWrite].physicalPage);
     IPTHash t;
     t.pid = pid; 
     t.vpn = pageToWrite;
     hmap.remove(t);
-    printf("Swaped out PID %d VPN %d Frame %d\n", t.pid, t.vpn, pageTable[pageToWrite].physicalPage);
+    if(extraOutput){
+        printf("Swapped out PID %d VPN %d Frame %d\n", t.pid, t.vpn, pageTable[pageToWrite].physicalPage);
+    }
 }

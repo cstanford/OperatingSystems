@@ -41,7 +41,9 @@ StartProcess(char *filename)
     hmap.get(a, val);
     printf("Process %d Page %d is stored in frame %d.\n", a.pid, a.vpn, val);
     return;*/
-    pageBitMap->printFit(customFitArg);
+    //pageBitMap->printFit(customFitArg);
+    printf("Number of physical pages: %d\n", NumPhysPages);
+    printf("Page Size: %d\n", PageSize);
 	 printf("Selected: ");
 	 if (customVArg == 1)
 		printf("FIFO\n");
@@ -55,6 +57,7 @@ StartProcess(char *filename)
 	if (extraOutput)
 		printf("Extra -E output option selected.\n");
 
+
     Thread *main = new Thread("Main thread");
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
@@ -67,7 +70,6 @@ StartProcess(char *filename)
     printf("\nLoading Process %d with path %s\n", currentThread->getThisThreadID(), filename);
     
     space = new AddrSpace(executable);    
-    printf("LOADING FILE %s\n", filename);
     space->SetFileName(filename);
     main->space = space;
 
