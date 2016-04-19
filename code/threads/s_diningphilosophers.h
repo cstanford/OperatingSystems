@@ -12,6 +12,10 @@ Semaphore sitAux("sitAux", 0);
 Semaphore wait("Politeness", 1);
 Semaphore waitAux("ExtraPolite", 0);
 
+// Added to test lock
+Lock lockwait("so polite");
+Lock locksit("just wow");
+
 int sitCount = 0;
 int finishCount = 0;
  // dummyParameters is only a placeholder to satisy the required parameters 
@@ -24,10 +28,13 @@ void S_BeginDining(int dummyParameter)
     philosopherIdNumber++;
     phil.join();
 
-    sit.P();
+//    sit.P();
+    locksit.Acquire();
     sitCount++;
     phil.sit();
-    sit.V();
+//    sit.V();
+	 locksit.Release();
+
     if(sitCount == numOfPhilosophers)
         sitAux.V();
     sitAux.P();
@@ -38,14 +45,18 @@ void S_BeginDining(int dummyParameter)
         phil.beginEating();
     }while(numOfMeals > 0);
 
-    wait.P();
+    //wait.P();
+	 lockwait.Acquire();
+
     finishCount++;
     printf("Philosopher %d is waiting to leave...(%d Philosophers Remaining)\n", phil.getId(), numOfPhilosophers-finishCount);
     if(finishCount == numOfPhilosophers){
         printf("All philosophers leave the table together.\n\n");
         waitAux.V();
     }
-    wait.V();
+    //wait.V();
+	 lockwait.Release();
+
     waitAux.P();
     waitAux.V();
 
