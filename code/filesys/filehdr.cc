@@ -27,6 +27,9 @@
 #include "system.h"
 #include "filehdr.h"
 
+#define DirectLimit 15872
+#define IndirectLimit 32000
+
 //----------------------------------------------------------------------
 // FileHeader::Allocate
 // 	Initialize a fresh file header for a newly created file.
@@ -45,9 +48,32 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
     numSectors  = divRoundUp(fileSize, SectorSize);
     if (freeMap->NumClear() < numSectors)
 	return FALSE;		// not enough space
+    if(numBytes <= DirectLimit){
+        for (int i = 0; i < numSectors; i++)
+            dataSectors[i] = freeMap->Find();
+    }else if(numBytes > DirectLimit &&
+            numBytes <= IndirectLimit){
+        for (int i = 0; i < NumDirect ; i++)
+            dataSectors[i] = freeMap->Find();
+        int remainingSectors = numSectors - (NumDirect-1);
+        printf("Number of Sectors is: %d\n", numSectors);
+        printf("Remaining Sectors is: %d\n", remainingSectors);
+        printf("Indirect pointer stores value of %d\n", dataSectors[NumDirect-1]);
+        int extraSectors[SectorSize/sizeof(int)]; //64
 
-    for (int i = 0; i < numSectors; i++)
-	dataSectors[i] = freeMap->Find();
+        for (int i = 0; i < remainingSectors; i++){
+            extraSectors[i] = freeMap->Find();
+            printf("Found a sector at %d\n", extraSectors[i]);
+        }
+        synchDisk->WriteSector(dataSectors[NumDirect-1], (char *)extraSectors); //Write indirect pointer data
+        int *data = new int[64];
+        synchDisk->ReadSector(dataSectors[NumDirect-1], (char*)data);
+
+        for (int i = 0; i < remainingSectors; i++){
+            printf("Sector stored correctly with value of %d\n", data[i]);
+        }
+
+    }
     return TRUE;
 }
 
@@ -106,7 +132,20 @@ FileHeader::WriteBack(int sector)
 int
 FileHeader::ByteToSector(int offset)
 {
-    return(dataSectors[offset / SectorSize]);
+    if(numBytes <= DirectLimit){
+        return dataSectors[offset / SectorSize];
+    }else if(numBytes > DirectLimit &&
+            numBytes <= IndirectLimit){
+        if(offset/SectorSize < (NumDirect-1)){
+            return dataSectors[offset / SectorSize];
+        }
+        else{
+            int *data = new int[64];
+            synchDisk->ReadSector(dataSectors[NumDirect-1], (char*)data);
+            int remainingSectors = numSectors - NumDirect;
+            return data[offset/SectorSize - NumDirect];
+        }
+    }
 }
 
 //----------------------------------------------------------------------
