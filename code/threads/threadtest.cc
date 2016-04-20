@@ -73,13 +73,6 @@ ThreadTest()
         dine->Fork(S_DiningPhilosophers, 0);
     }
 
-    // This thread forks to a dining philosophers simulation that uses semaphores
-    else if (customParameterArg == 4){
-        Thread *dine = new Thread("DiningPhilosophersSemaphoreThread");
-        //dine->Fork(DiningPhilosophers, 1);
-	// NOTE: when using semaphores, pass a value of 1 to DiningPhilosophers!
-    }
-
     // This thread forks to a post office simulation that uses busy loops
     else if (customParameterArg == 5){
         Thread *postoffice = new Thread("PosOffBusyThread");

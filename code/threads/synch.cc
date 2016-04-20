@@ -104,6 +104,7 @@ Lock::Lock(char* debugName) {
     name = debugName;
     queue = new List;
     value = 1; // Value is free if value == 1
+    ownerThread = NULL;
     
 
 }
@@ -116,11 +117,19 @@ void Lock::Acquire() {
 
     IntStatus oldLevel = interrupt->SetLevel(IntOff);	// disable interrupts
     
-    while (value == 0) { 			
-	queue->Append((void *)currentThread);	
-	currentThread->Sleep();
+    if(isHeldByCurrentThread()){ //Checks if the current thread owns the lock.
+	(void) interrupt->SetLevel(oldLevel);
+	return;
+    }   
+ 
+    if (value == 1) { // The lock is free if value == 1.
+	value = 0; 			
+	ownerThread = currentThread;
     } 
-    value = 0;
+    else{   // If the lock is not free. Put currentThread on the queue.
+	queue->Append((void *)currentThread);	
+	currentThread->Sleep(); 
+    }
     
     (void) interrupt->SetLevel(oldLevel);	// re-enable interrupts
 
@@ -130,14 +139,42 @@ void Lock::Release() {
     Thread *thread;
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
-    thread = (Thread *)queue->Remove();
-    if (thread != NULL)	   
-	scheduler->ReadyToRun(thread);
-    value = 1;;
+    if(!isHeldByCurrentThread()){	
+	(void) interrupt->SetLevel(oldLevel);
+	return;
+    }    
+
+    if(!(queue->IsEmpty()))
+    {
+	thread = (Thread *)queue->Remove();
+    
+
+	if (thread != NULL){	   
+	    scheduler->ReadyToRun(thread);
+	}
+
+	value = 0;
+	ownerThread = thread;
+
+    }
+    else{
+
+	value = 1;
+	ownerThread = NULL;
+    }
+
     (void) interrupt->SetLevel(oldLevel);
 
-
 }
+
+bool Lock::isHeldByCurrentThread(){
+    if(ownerThread == currentThread)
+	return 1;
+    else
+	return 0;
+}
+
+
 
 Condition::Condition(char* debugName) { }
 Condition::~Condition() { }
