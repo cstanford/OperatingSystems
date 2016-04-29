@@ -141,6 +141,15 @@ BitMap::Print()
     printf("] %d%%", (int)((float)(100.0f*count)/(float)numBits));
     printf("\n"); 
 }
+void
+BitMap::UglyPrint() 
+{
+    for (int i = 0; i < numBits; i++){
+	    if(Test(i))
+            printf("%d ", i);
+    }
+    printf("\n"); 
+}
 
 // These aren't needed until the FILESYS assignment
 

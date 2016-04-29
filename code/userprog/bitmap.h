@@ -45,6 +45,7 @@ class BitMap {
     int NumClear();		// Return the number of clear bits
 
     void Print();		// Print contents of bitmap
+    void UglyPrint();		// Print contents of bitmap
     
     // These aren't needed until FILESYS, when we will need to read and 
     // write the bitmap to a file

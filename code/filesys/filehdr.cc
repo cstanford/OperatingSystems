@@ -47,51 +47,49 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
 { 
     numBytes = fileSize;
     numSectors  = divRoundUp(fileSize, SectorSize);
-    if (freeMap->NumClear() < numSectors)
+    printf("Filesize = %d\n", fileSize);
+    printf("Require %d Sectors\n\n", numSectors);
+    printf("Consumed Sectors (Before Allocation) - Bitmap set:\n");
+    freeMap->UglyPrint();
+    printf("\n");
+    if (freeMap->NumClear() < numSectors){
+        printf("Sorry, not enough space to allocate.  That file is too large.");
         return FALSE;		// not enough space
+    }
     if(numBytes <= DirectLimit){
         for (int i = 0; i < numSectors; i++)
             dataSectors[i] = freeMap->Find();
+        printf("Used %d direct pointers\n", numSectors);
     }else if(numBytes > DirectLimit &&
             numBytes <= IndirectLimit){
         for (int i = 0; i < NumDirect ; i++)
             dataSectors[i] = freeMap->Find();
         int remainingSectors = numSectors - (NumDirect-1);
-        printf("Number of Sectors is: %d\n", numSectors);
-        printf("Remaining Sectors is: %d\n", remainingSectors);
-        printf("Indirect pointer stores value of %d\n", dataSectors[NumDirect-1]);
         int extraSectors[MaxPointers]; //MaxPointers
 
         for (int i = 0; i < remainingSectors; i++){
             extraSectors[i] = freeMap->Find();
-            printf("Found a sector at %d\n", extraSectors[i]);
         }
         synchDisk->WriteSector(dataSectors[NumDirect-1], (char *)extraSectors); //Write indirect pointer data
-        int *data = new int[MaxPointers];
-        synchDisk->ReadSector(dataSectors[NumDirect-1], (char*)data);
-
-        for (int i = 0; i < remainingSectors; i++){
-            printf("Sector stored correctly with value of %d\n", data[i]);
-        }
+        printf("Used %d direct pointers\n", NumDirect-1);
+        printf("Used 1 indirect pointer\n");
 
     }else {
         for (int i = 0; i < NumDirect ; i++)
             dataSectors[i] = freeMap->Find();
         int remainingSectors = numSectors - (NumDirect-2);
-        printf("Number of Sectors is: %d\n", numSectors);
-        printf("Remaining Sectors is: %d\n", remainingSectors);
-        printf("Indirect pointer stores value of %d\n", dataSectors[NumDirect-2]);
         
         //Takes care of our indirect pointer, which is full
         int extraSectors[MaxPointers]; //MaxPointers
 
         for (int i = 0; i < MaxPointers; i++){
             extraSectors[i] = freeMap->Find();
-            printf("Found a sector at %d\n", extraSectors[i]);
         }
         synchDisk->WriteSector(dataSectors[NumDirect-2], (char *)extraSectors); //Write indirect pointer data
+        printf("Used %d direct pointers\n", NumDirect-2);
+        printf("Used 1 indirect pointer\n");
+        printf("Used 1 double-indirect pointer\n");
 
-        printf("Double Indirect pointer stores value of %d\n", dataSectors[NumDirect-1]);
         int remainingIndirect = remainingSectors-MaxPointers;
         //Now we need to handle the doubly-indirect pointer 
         int indirectNeeded = remainingIndirect/MaxPointers;
@@ -102,14 +100,10 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
         for(int i = 0; i < indirectNeeded; i++){
             //Allocate space for each indirect pointer
             indirectPointers[i] = freeMap->Find();
-            printf("Found a sector at %d\n", indirectPointers[i]);
         }
         //Write that list of indirect pointers to disk
 
         synchDisk->WriteSector(dataSectors[NumDirect-1], (char *)indirectPointers); 
-        printf("Just wrote indirect pointers to disk\n");
-        printf("Now we need to allocate for each one's direct pointers\n");
-        printf("Indirect needed is %d\n", indirectNeeded);
         //Now we need to write the data for each indirect pointer
         for(int i = 0; i < indirectNeeded; i++){
             //Write the sectors for the ith pointer
@@ -118,23 +112,23 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
                 int rSectors[MaxPointers];
                 for(int r = 0; r < remainingIndirect; r++){
                     rSectors[r] = freeMap->Find(); 
-                    printf("Found a sector at %d\n", rSectors[r]);
                 }
                 synchDisk->WriteSector(indirectPointers[i], (char *)rSectors); 
-                printf("Just wrote indirect %dths direct pointers\n");
             }
             else {
                 //This indirect pointer has MaxPointers sectors to write
                 int rSectors[MaxPointers];
                 for(int r = 0; r < MaxPointers; r++){
                     rSectors[r] = freeMap->Find(); 
-                    printf("Found a sector at %d\n", rSectors[r]);
                 }
                 synchDisk->WriteSector(indirectPointers[i], (char *)rSectors); 
                 remainingIndirect -= MaxPointers;
             }
         }
     }
+    printf("Consumed Sectors (After Allocation) - Bitmap set:\n");
+    freeMap->UglyPrint();
+    printf("\n");
     return TRUE;
 }
 
@@ -149,11 +143,11 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
 void 
 FileHeader::Deallocate(BitMap *freeMap)
 {
-    /*for (int i = 0; i < numSectors; i++) {
-	ASSERT(freeMap->Test((int) dataSectors[i]));  // ought to be marked!
-	freeMap->Clear((int) dataSectors[i]);
-    }*/
-    freeMap->Print();
+    printf("Filesize = %d\n", numBytes);
+    printf("Required %d Sectors\n\n", numSectors);
+    printf("Consumed Sectors (Before deallocation) - Bitmap set:\n");
+    freeMap->UglyPrint();
+    printf("\n");
     if(numBytes <= DirectLimit){
         for (int i = 0; i < numSectors; i++){
             ASSERT(freeMap->Test((int) dataSectors[i]));  // ought to be marked!
@@ -230,7 +224,9 @@ FileHeader::Deallocate(BitMap *freeMap)
             freeMap->Clear((int) indirectPointers[i]);
         }
     }
-    freeMap->Print();
+    printf("Consumed Sectors (After deallocation) - Bitmap set:\n");
+    freeMap->UglyPrint();
+    printf("\n");
 }
 
 //----------------------------------------------------------------------

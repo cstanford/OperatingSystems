@@ -112,6 +112,10 @@ main(int argc, char **argv)
 #endif // USER_PROGRAM
 #ifdef FILESYS
 	if (!strcmp(*argv, "-cp")) { 		// copy from UNIX to Nachos
+        if(argc <= 2){
+            printf("Sorry, you need to enter more arguments\n");
+            return 0;
+        }
 	    ASSERT(argc > 2);
 	    Copy(*(argv + 1), *(argv + 2));
 	    argCount = 3;
