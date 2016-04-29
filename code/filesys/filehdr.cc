@@ -29,7 +29,7 @@
 
 #define DirectLimit 15872
 #define IndirectLimit 32000
-#define MaxPointers SectorSize/sizeof(int)
+#define MaxPointers (SectorSize/sizeof(int))
 
 //----------------------------------------------------------------------
 // FileHeader::Allocate
@@ -93,7 +93,6 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
 
         printf("Double Indirect pointer stores value of %d\n", dataSectors[NumDirect-1]);
         int remainingIndirect = remainingSectors-MaxPointers;
-        printf("We have %d remaining sectors\n", remainingIndirect);
         //Now we need to handle the doubly-indirect pointer 
         int indirectNeeded = remainingIndirect/MaxPointers;
         int indirectPointers[MaxPointers];
@@ -110,6 +109,7 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
         synchDisk->WriteSector(dataSectors[NumDirect-1], (char *)indirectPointers); 
         printf("Just wrote indirect pointers to disk\n");
         printf("Now we need to allocate for each one's direct pointers\n");
+        printf("Indirect needed is %d\n", indirectNeeded);
         //Now we need to write the data for each indirect pointer
         for(int i = 0; i < indirectNeeded; i++){
             //Write the sectors for the ith pointer
@@ -117,7 +117,7 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
                 //Handle rest of sectors
                 int rSectors[MaxPointers];
                 for(int r = 0; r < remainingIndirect; r++){
-                   rSectors[r] = freeMap->Find(); 
+                    rSectors[r] = freeMap->Find(); 
                     printf("Found a sector at %d\n", rSectors[r]);
                 }
                 synchDisk->WriteSector(indirectPointers[i], (char *)rSectors); 
@@ -127,7 +127,8 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
                 //This indirect pointer has MaxPointers sectors to write
                 int rSectors[MaxPointers];
                 for(int r = 0; r < MaxPointers; r++){
-                   rSectors[r] = freeMap->Find(); 
+                    rSectors[r] = freeMap->Find(); 
+                    printf("Found a sector at %d\n", rSectors[r]);
                 }
                 synchDisk->WriteSector(indirectPointers[i], (char *)rSectors); 
                 remainingIndirect -= MaxPointers;
